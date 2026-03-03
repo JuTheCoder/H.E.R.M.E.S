@@ -1,0 +1,18 @@
+body {
+    background-color: aquamarine;
+}
+
+table, th, td{
+    border: 2px solid;
+    margin-top: 20px;
+}
+
+h1 {
+    padding: 20px;
+    text-align: center;
+    border-style: double;
+}
+
+button {
+    padding: 10px;
+}
