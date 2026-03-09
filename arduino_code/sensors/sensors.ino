@@ -1,44 +1,74 @@
 #include <SoftwareSerial.h>
 #include <MHZ19.h>
 #include <LiquidCrystal.h>
+#include <DHT.h>
 
-#define CO2_RX 10 // Arduino listens to co2 sensor on pin 10
-#define CO2_TX 11 // Arduino talks to co2 sensor on pin 11 
-#define co_pin A5
+// Pin Definitions
+#define CO2_RX 10       // CO2 Sensor RX uses pin 10
+#define CO2_TX 11       // CO2 Sensor TX uses pin 11
+#define MQ2_PIN A5      // CO sensor uses Arduino pin A5
+#define MQ135_PIN A0    // Air Quality sensor uses Arduino pin A0
+#define DHT_PIN 7       // Temperature pin uses pin 7
+#define DHT_TYPE DHT22  // Temperature sensor variable
 
-// Configures the LCD with its Control (12, 8) and Data (5, 4, 3, 2) pins
+// Object Initialization
 LiquidCrystal screen(12, 8, 5, 4, 3, 2); 
 MHZ19 co2Sensor;
-
-// Links the SoftwareSerial logic to co2 sensor pins
 SoftwareSerial co2Serial(CO2_RX, CO2_TX);
+DHT dht(DHT_PIN, DHT_TYPE); 
 
 void setup() {
-    Serial.begin(9600);
-    co2Serial.begin(9600); // Starts the software communication at the sensor's required speed
-    co2Sensor.begin(co2Serial); // Tells the MHZ19 library which serial port to use
+    Serial.begin(9600);           // Raspberry Pi Communication
+    co2Serial.begin(9600);        // CO2 Sensor Communication
+    co2Sensor.begin(co2Serial);   // Starts CO2 sensor
+    dht.begin();                  // Starts Temperature sensor
     
     pinMode(LED_BUILTIN, OUTPUT);
-    screen.begin(16, 2); // Indicates the screen has 16 columns and 2 rows
+    screen.begin(16, 2);          // Starts lcd
     screen.clear();
     
-    delay(2000); // Wait 2 seconds to allow sensor heaters to stabilize
+    // Set-up sequence
+    screen.print("Initializing sensor display...");
+    screen.setCursor(0, 1);
+    delay(3000); 
 }
 
 void loop() {
+    // 1. Collect Data from all 4 sensors
+    int co2_mh = co2Sensor.getCO2(); 
+    int co_mq2 = analogRead(MQ2_PIN);
+    int aq_mq135 = analogRead(MQ135_PIN); 
+    float tempF = dht.readTemperature(true); // Passed true to set temp to Fahrenheit
+
+    // 2. Calculate Air Quality % from MQ-135
+    // Adjust 100/600 based on your specific outdoor baseline (will set outdoor baseline later)
+    int aq_score = map(aq_mq135, 100, 600, 0, 100);
+    aq_score = constrain(aq_score, 0, 100);
+
+    // 3. Update LCD with sensor values
+    screen.clear();
     
-    // Gets co2 and co levels from respective sensors
-    int co2 = co2Sensor.getCO2(); 
-    int co = analogRead(co_pin);
-
-    // Displays data on lcd
+    // Top Row: CO2 and Temperature values
     screen.setCursor(0, 0);
-    screen.print("CO2: "); screen.print(co2); screen.print("    ");
+    screen.print("C2:"); screen.print(co2_mh);
+    
+    screen.setCursor(9, 0); 
+    screen.print("T:"); screen.print(tempF, 0); screen.print("F");
+
+    // Bottom Row: Air Quality % and CO values
     screen.setCursor(0, 1);
-    screen.print("CO: "); screen.print(co); screen.print("    ");
+    screen.print("AQ:"); screen.print(aq_score); screen.print("%");
+    
+    screen.setCursor(9, 1); 
+    screen.print("CO:"); screen.print(co_mq2);
 
-    // Sends data to the raspberry pi
-    Serial.print(co2); Serial.print(","); Serial.println(co);
+    // 4. Send CSV Data to Raspberry Pi
+    // Format: CO2,CO,AQ,TempF
+    Serial.print(co2_mh); Serial.print(",");
+    Serial.print(co_mq2); Serial.print(",");
+    Serial.print(aq_mq135); Serial.print(",");
+    Serial.println(tempF);
 
-    delay(3000); // Waits 3 seconds before getting the next set of levels
+    // Total loop timing: ~3 seconds
+    delay(3000); 
 }
