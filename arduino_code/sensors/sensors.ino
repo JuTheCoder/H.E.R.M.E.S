@@ -3,17 +3,23 @@
 #include <LiquidCrystal.h>
 #include <DHT.h>
 
-// Pin Definitions
-#define CO2_RX 10        
-#define CO2_TX 11        
-#define MQ2_PIN A5       
-#define MQ135_PIN A0     
-#define DHT_PIN 7        
-#define DHT_TYPE DHT22   
+// Pin definitions for sensors
+#define CO2_RX 10 
+#define CO2_TX 11 
+#define MQ2_PIN A5 
+#define MQ135_PIN A0 
+#define DHT_PIN 7 
+#define DHT_TYPE DHT22 
 
-// Configuration
-#define READ_INTERVAL 3000  // 3 seconds between sensor reads
-#define BAUD_RATE 9600      // Serial baud rate for Raspberry Pi
+// Pin definitions for alerts
+#define ALERT_LED 6      // Red LED
+#define BUZZER_PIN 9     // Buzzer
+
+// Configuration & Thresholds
+#define READ_INTERVAL 3000 
+#define BAUD_RATE 9600 
+#define CO2_LIMIT 10000   // Alert threshold for CO2
+#define TEMP_LIMIT 85    // Alert threshold for Temp
 
 // Object Initialization
 LiquidCrystal screen(12, 8, 5, 4, 3, 2); 
@@ -25,20 +31,22 @@ DHT dht(DHT_PIN, DHT_TYPE);
 unsigned long lastReadTime = 0;
 
 void setup() {
-    Serial.begin(BAUD_RATE);      // Communication with Raspberry Pi
-    co2Serial.begin(9600);        // Communication with CO2 Sensor
+    Serial.begin(BAUD_RATE);    // Communication with Raspberry Pi 
+    co2Serial.begin(9600);      // Communication with CO2 sensor
     co2Sensor.begin(co2Serial);   
     dht.begin();                  
     
-    pinMode(LED_BUILTIN, OUTPUT);
+    pinMode(ALERT_LED, OUTPUT);
+    pinMode(BUZZER_PIN, OUTPUT);
+    
     screen.begin(16, 2);          
     screen.clear();
     
+    // 30 second warmup for system
     screen.print("H.E.R.M.E.S. Init");
     screen.setCursor(0, 1);
     screen.print("Warm-up: 30s...");
     
-    // 30 second warm-up for MQ sensors as per H.E.R.M.E.S requirements
     delay(30000); 
     screen.clear();
 }
@@ -69,21 +77,36 @@ void loop() {
     int aq_score = map(aq_mq135, 100, 600, 0, 100);
     aq_score = constrain(aq_score, 0, 100);
 
-    // 4. Update LCD Display
+    // 4. Alert Logic (Physical Visuals and Audio)
+    bool is_alert = (co2_mh > CO2_LIMIT || tempF > TEMP_LIMIT);
+    
+    if (is_alert) {
+        digitalWrite(ALERT_LED, HIGH);
+        tone(BUZZER_PIN, 1500, 300); // 1.5kHz alert tone
+    } else {
+        digitalWrite(ALERT_LED, LOW);
+        noTone(BUZZER_PIN);
+    }
+
+    // 5. Update LCD Display
     screen.clear();
-    // Row 0: CO2 and Temp
+    // Row 0: CO2 and Temp (Anchored positions)
     screen.setCursor(0, 0);
     screen.print("C2:"); screen.print(co2_mh);
     screen.setCursor(9, 0); 
     screen.print("T:"); screen.print(tempF, 0); screen.print("F");
 
-    // Row 1: AQ% and CO
+    // Row 1: Alert message OR Standard AQ/CO values
     screen.setCursor(0, 1);
-    screen.print("AQ:"); screen.print(aq_score); screen.print("%");
-    screen.setCursor(9, 1); 
-    screen.print("CO:"); screen.print(co_mq2);
+    if (is_alert) {
+        screen.print("!! SYSTEM ALERT !!");
+    } else {
+        screen.print("AQ:"); screen.print(aq_score); screen.print("%");
+        screen.setCursor(9, 1); 
+        screen.print("CO:"); screen.print(co_mq2);
+    }
 
-    // 5. Send JSON Data to Raspberry Pi
+    // 6. Send JSON Data to Raspberry Pi
     Serial.print("{");
     Serial.print("\"co2\":");         Serial.print(co2_mh);
     Serial.print(",\"co_mq2\":");     Serial.print(co_mq2);
@@ -91,5 +114,6 @@ void loop() {
     Serial.print(",\"aq_percent\":"); Serial.print(aq_score);
     Serial.print(",\"temp_f\":");     Serial.print(tempF, 1);
     Serial.print(",\"humidity\":");   Serial.print(humidity, 1);
+    Serial.print(",\"alert\":");      Serial.print(is_alert ? "true" : "false");
     Serial.println("}");
 }
