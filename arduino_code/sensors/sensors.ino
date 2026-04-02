@@ -109,11 +109,11 @@ void loop() {
     // 6. Send JSON Data to Raspberry Pi
     Serial.print("{");
     Serial.print("\"co2\":");         Serial.print(co2_mh);
-    Serial.print(",\"co_mq2\":");     Serial.print(co_mq2);
-    Serial.print(",\"mq135_raw\":");  Serial.print(aq_mq135);
+    Serial.print(",\"co\":");     Serial.print(co_mq2);
+    Serial.print(",\"air\":");  Serial.print(aq_mq135);
     Serial.print(",\"aq_percent\":"); Serial.print(aq_score);
-    Serial.print(",\"temp_f\":");     Serial.print(tempF, 1);
-    Serial.print(",\"humidity\":");   Serial.print(humidity, 1);
-    Serial.print(",\"alert\":");      Serial.print(is_alert ? "true" : "false");
+    Serial.print(",\"temperature\":");     Serial.print(tempF, 1);
+    //Serial.print(",\"humidity\":");   Serial.print(humidity, 1);
+    //Serial.print(",\"alert\":");      Serial.print(is_alert ? "true" : "false");
     Serial.println("}");
 }

@@ -9,6 +9,8 @@
    #return levels
 
 def threshold(name, value):
+    if value is None: 
+        return "No Data"
     if(name == "temperature"):
         if(value >= 68 and value <= 77):
             return "Safe"
@@ -38,7 +40,7 @@ def threshold(name, value):
             return "Dangerous"
         elif(value > 200):
             return "Severe Danger"
-    if(name == "air_quality"):
+    if(name == "air"):
         if(value >= 0 and value <= 50):
             return "Good"
         elif(value >= 51 and value <= 100):
