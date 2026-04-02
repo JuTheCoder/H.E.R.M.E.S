@@ -25,7 +25,7 @@ fetch(api_data_url)
         document.getElementById("temperature_level").innerHTML = data.temperature;
         document.getElementById("co2_level").innerHTML = data.co2;
         document.getElementById("co_level").innerHTML = data.co;
-        document.getElementById("air_level").innerHTML = data.air;
+        document.getElementById("air_level").innerHTML = data.air_quality;
     })
     .catch(error => {
         console.error('Problem with fetch operation: ', error);

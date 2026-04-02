@@ -1,12 +1,12 @@
 
-def values():
-    levels = {
-        "temperature": 70,
-        "co2": 401,
-        "co": 36,
-        "air_quality": 500
-    }
-    return levels
+#def values():
+    #levels = {
+        #"temperature": 0,
+       # "co2": 0,
+       # "co": 0,
+       # "air_quality": 0
+   # }
+   #return levels
 
 def threshold(name, value):
     if(name == "temperature"):
