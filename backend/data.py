@@ -1,13 +1,5 @@
 
-#def values():
-    #levels = {
-        #"temperature": 0,
-       # "co2": 0,
-       # "co": 0,
-       # "air_quality": 0
-   # }
-   #return levels
-
+# This function determines the threshold of each air characteristic by it's name and value
 def threshold(name, value):
     if value is None: 
         return "No Data"
