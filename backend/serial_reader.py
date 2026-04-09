@@ -3,7 +3,7 @@ import json
 import requests
 
 # Port for the Arduino and the Rate number 
-SERIAL_PORT = "/dev/cu.usbmodem1101"
+SERIAL_PORT = "/dev/cu.usbmodem101"
 BAUD_RATE = 9600
 
 # Post endpoint that'll send the data to our API
