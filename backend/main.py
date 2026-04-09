@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from data import threshold
+from data import threshold, overall_threshold
 
 # Stores latest reading
 latest_data = {}
@@ -27,6 +27,7 @@ class Threshold(BaseModel):
     co2_thresh: str
     co_thresh: str
     air_thresh: str
+    overall_thresh: str
 
 # Format for the data endpoint
 class SensorReading(BaseModel):
@@ -61,12 +62,23 @@ def data():
 # endpoint that'll display the threshold for each air level
 @app.get("/api/threshold", response_model=Threshold)
 def thold():
+    temp_thresh = threshold("temperature", latest_data.get("temperature", 0.0)),
+    co2_thresh = threshold("co2", latest_data.get("co2", 0)),
+    co_thresh = threshold("co", latest_data.get("co", 0)),
+    air_thresh = threshold("air", latest_data.get("air", 0)),
+
+    overall_thresh = overall_threshold(temp_thresh, co2_thresh, co_thresh, air_thresh)
+
     return {
-        "temp_thresh": threshold("temperature", latest_data.get("temperature", 0.0)),
-        "co2_thresh": threshold("co2", latest_data.get("co2", 0)),
-        "co_thresh": threshold("co", latest_data.get("co", 0)),
-        "air_thresh": threshold("air", latest_data.get("air", 0))
+        "temperature_thresh": temp_thresh,
+        "co2_thresh": co2_thresh,
+        "co_thresh": co_thresh,
+        "air_thresh": air_thresh,
+        "overall_thresh": overall_thresh
     }
+
+
+    
     
 @app.get("/api/test")
 def test():
