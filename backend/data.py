@@ -1,193 +1,100 @@
-"""
-Threshold logic for the sensors.
-Admins can tweak these from the dashboard - changes save to thresholds.json.
-Falls back to defaults based on OSHA/ASHRAE/EPA/WHO standards if no custom config.
-"""
 
-import json
-import os
-
-THRESHOLDS_FILE = os.path.join(os.path.dirname(__file__), "thresholds.json")
-
-# these are the defaults if nobody has changed anything
-DEFAULT_THRESHOLDS = {
-    "temperature": {
-        "safe_min": 68,
-        "safe_max": 77,
-        "moderate_min": 60,
-        "moderate_max": 85,
-        "unit": "F"
-    },
-    "co2": {
-        "safe_max": 800,
-        "moderate_max": 1000,
-        "poor_max": 2000,
-        "unsafe_max": 5000,
-        "unit": "ppm"
-    },
-    "co": {
-        "safe_max": 400,
-        "moderate_max": 550,
-        "unsafe_max": 700,
-        "dangerous_max": 850,
-        "unit": "raw"
-    },
-    "air_quality": {
-        "good_max": 50,
-        "moderate_max": 100,
-        "sensitive_max": 150,
-        "unhealthy_max": 200,
-        "very_unhealthy_max": 300,
-        "unit": "%"
-    },
-    "humidity": {
-        "comfortable_min": 30,
-        "comfortable_max": 50,
-        "moderate_min": 20,
-        "moderate_max": 60,
-        "unit": "%"
-    }
-}
-
-
-def load_thresholds():
-    """grab custom thresholds from disk, or use defaults"""
-    if os.path.exists(THRESHOLDS_FILE):
-        with open(THRESHOLDS_FILE, "r") as f:
-            custom = json.load(f)
-            # merge with defaults so new fields don't break anything
-            merged = {**DEFAULT_THRESHOLDS}
-            for key in custom:
-                if key in merged:
-                    merged[key] = {**merged[key], **custom[key]}
-            return merged
-    return DEFAULT_THRESHOLDS.copy()
-
-
-def save_thresholds(new_thresholds):
-    """save custom threshold values to disk"""
-    with open(THRESHOLDS_FILE, "w") as f:
-        json.dump(new_thresholds, f, indent=2)
-
-
-def get_thresholds_config():
-    """return current thresholds for the admin panel"""
-    return load_thresholds()
-
-
+# This function determines the threshold of each air characteristic by it's name and value
 def threshold(name, value):
-    """takes a sensor name and reading, returns a plain english risk level"""
-    if value is None:
+    if value is None: 
         return "No Data"
-
-    t = load_thresholds()
-
-    if name == "temperature":
-        c = t["temperature"]
-        if c["safe_min"] <= value <= c["safe_max"]:
+    if(name == "temperature"):
+        if(value >= 68 and value <= 77):
             return "Safe"
-        elif (c["moderate_min"] <= value < c["safe_min"]) or (c["safe_max"] < value <= c["moderate_max"]):
+        elif((value >= 60 and value <= 67) or (value >= 78 and value <= 85)):
             return "Moderate"
-        elif value < c["moderate_min"] or value > c["moderate_max"]:
+        elif(value < 60 or value > 85):
             return "Unsafe"
-
-    elif name == "co2":
-        c = t["co2"]
-        if value <= c["safe_max"]:
+    if(name == "co2"):
+        if(value >= 400 and value <= 800):
             return "Safe"
-        elif value <= c["moderate_max"]:
+        elif(value >= 801 and value <= 1000):
             return "Moderate"
-        elif value <= c["poor_max"]:
+        elif(value >= 1001 and value <= 2000):
             return "Poor"
-        elif value <= c["unsafe_max"]:
+        elif(value >= 2001 and value <= 5000):
             return "Unsafe"
-        elif value > c["unsafe_max"]:
+        elif(value > 5000):
             return "Dangerous"
-
-    elif name == "co":
-        c = t["co"]
-        if value <= c["safe_max"]:
+    if(name == "co"):
+        if(value >= 0 and value <= 5):
             return "Safe"
-        elif value <= c["moderate_max"]:
+        elif(value >= 6 and value <= 9):
             return "Moderate"
-        elif value <= c["unsafe_max"]:
+        elif(value >= 10 and value <= 35):
             return "Unsafe"
-        elif value <= c["dangerous_max"]:
+        elif(value >= 36 and value <= 200):
             return "Dangerous"
-        elif value > c["dangerous_max"]:
+        elif(value > 200):
             return "Severe Danger"
-
-    elif name == "air_quality":
-        c = t["air_quality"]
-        if value <= c["good_max"]:
+    if(name == "air"):
+        if(value >= 0 and value <= 50):
             return "Good"
-        elif value <= c["moderate_max"]:
+        elif(value >= 51 and value <= 100):
             return "Moderate"
-        elif value <= c["sensitive_max"]:
-            return "Unhealthy for Sensitive Groups"
-        elif value <= c["unhealthy_max"]:
+        elif(value >= 101 and value <= 150):
+            return "Unhealthy for sensitive groups"
+        elif(value >= 151 and value <= 200):
             return "Unhealthy"
-        elif value <= c["very_unhealthy_max"]:
+        elif(value >= 201 and value <= 300):
             return "Very Unhealthy"
-        elif value > c["very_unhealthy_max"]:
+        elif(value > 300):
             return "Hazardous"
 
-    elif name == "humidity":
-        c = t["humidity"]
-        if c["comfortable_min"] <= value <= c["comfortable_max"]:
-            return "Comfortable"
-        elif (c["moderate_min"] <= value < c["comfortable_min"]) or (c["comfortable_max"] < value <= c["moderate_max"]):
-            return "Moderate"
-        elif value < c["moderate_min"] or value > c["moderate_max"]:
-            return "Uncomfortable"
-
-    return "Unknown"
-
-
+# This function maps each of the threshold labels to a number that we will use to determine the overall quality
 def severity_score(label):
-    """turn a threshold label into a number for comparison. higher = worse."""
     scores = {
         "No Data": -1,
+
         "Good": 0,
         "Safe": 0,
-        "Comfortable": 0,
+
         "Moderate": 1,
+
         "Poor": 2,
-        "Unhealthy for Sensitive Groups": 2,
-        "Uncomfortable": 2,
+        "Unhealthy for sensitive groups": 2,
+
         "Unsafe": 3,
         "Unhealthy": 3,
+
         "Dangerous": 4,
         "Very Unhealthy": 4,
-        "Hazardous": 5,
-        "Severe Danger": 5,
-        "Unknown": -1
     }
-    return scores.get(label, -1)
 
+    return scores.get(label,-1)
 
+# Defines the overall quality of air given the threshold of each air characteristic
 def overall_threshold(temp, co2, co, air):
-    """worst of all four sensors becomes the overall verdict"""
     labels = [
         threshold("temperature", temp),
         threshold("co2", co2),
         threshold("co", co),
-        threshold("air_quality", air)
+        threshold("air", air)
     ]
 
-    worst = -1
+    max_score = -1
+
     for label in labels:
         score = severity_score(label)
-        if score > worst:
-            worst = score
+        if score > max_score:
+            max_score = score
 
-    verdicts = {
-        -1: "No Data",
-        0: "Safe",
-        1: "Moderate",
-        2: "Poor",
-        3: "Unsafe",
-        4: "Dangerous",
-        5: "Severe Danger"
-    }
-    return verdicts.get(worst, "No Data")
+    if max_score == -1:
+        return "No Data"
+    elif max_score == 0:
+        return "Safe"
+    elif max_score == 1:
+        return "Moderate"
+    elif max_score == 2:
+        return "Poor"
+    elif max_score == 3:
+        return "Unsafe"
+    elif max_score == 4:
+        return "Dangerous"
+    else: 
+        return "Severe Danger"
