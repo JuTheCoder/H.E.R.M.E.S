@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H.E.R.M.E.S. - Admin Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            background: #16213e;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #0f3460;
+        }
+
+        .top-bar h1 { font-size: 20px; color: #fff; letter-spacing: 2px; }
+        .top-bar .nav-links { display: flex; gap: 16px; align-items: center; }
+        .top-bar a { color: #8899aa; text-decoration: none; font-size: 13px; }
+        .top-bar a:hover { color: #e94560; }
+
+        .logout-btn {
+            background: transparent; border: 1px solid #e94560;
+            color: #e94560; padding: 5px 14px; border-radius: 6px;
+            font-size: 12px; cursor: pointer; font-weight: 600;
+        }
+        .logout-btn:hover { background: #e94560; color: #fff; }
+
+        .admin-container {
+            max-width: 900px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+
+        .panel {
+            background: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .panel h2 {
+            font-size: 16px;
+            color: #fff;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #0f3460;
+        }
+
+        .threshold-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .threshold-group { margin-bottom: 12px; }
+
+        .threshold-group label {
+            display: block;
+            font-size: 12px;
+            color: #8899aa;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .threshold-group input {
+            width: 100%;
+            padding: 8px 12px;
+            background: #1a1a2e;
+            border: 1px solid #0f3460;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .threshold-group input:focus { border-color: #e94560; outline: none; }
+
+        .sensor-section {
+            margin-bottom: 20px;
+        }
+
+        .sensor-section h3 {
+            font-size: 14px;
+            color: #e94560;
+            margin-bottom: 10px;
+        }
+
+        .save-btn {
+            background: #e94560;
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+        .save-btn:hover { background: #c73550; }
+
+        .success-msg {
+            color: #00d97e;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* users table */
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+        }
+
+        .users-table th {
+            text-align: left;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: #8899aa;
+            text-transform: uppercase;
+            border-bottom: 1px solid #0f3460;
+        }
+
+        .users-table td {
+            padding: 10px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #0f3460;
+        }
+
+        .role-admin { color: #e94560; font-weight: 600; }
+        .role-viewer { color: #5b8dee; }
+
+        .delete-btn {
+            background: transparent;
+            border: 1px solid #e94560;
+            color: #e94560;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .delete-btn:hover { background: #e94560; color: #fff; }
+
+        .add-user-form {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .add-user-form .field { display: flex; flex-direction: column; }
+        .add-user-form label { font-size: 11px; color: #8899aa; margin-bottom: 3px; }
+
+        .add-user-form input, .add-user-form select {
+            padding: 8px 10px;
+            background: #1a1a2e;
+            border: 1px solid #0f3460;
+            border-radius: 6px;
+            color: #e0e0e0;
+            font-size: 13px;
+        }
+
+        .add-btn {
+            background: #00d97e;
+            color: #1a1a2e;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .add-btn:hover { background: #00c06e; }
+
+        @media (max-width: 600px) {
+            .threshold-grid { grid-template-columns: 1fr; }
+            .add-user-form { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <h1>H.E.R.M.E.S. Admin</h1>
+        <div class="nav-links">
+            <a href="/">Dashboard</a>
+            <button onclick="doLogout()" class="logout-btn">Logout</button>
+        </div>
+    </div>
+
+    <div class="admin-container">
+
+        <!-- threshold settings -->
+        <div class="panel">
+            <h2>Safety Thresholds</h2>
+            <p style="font-size:13px; color:#667788; margin-bottom:16px;">
+                Adjust when each sensor triggers a warning. Values are checked every time a new reading comes in.
+            </p>
+
+            <div id="threshold-form">
+                <div class="sensor-section">
+                    <h3>Temperature (F)</h3>
+                    <div class="threshold-grid">
+                        <div class="threshold-group">
+                            <label>Safe Min</label>
+                            <input type="number" id="temp-safe-min" step="1">
+                        </div>
+                        <div class="threshold-group">
+                            <label>Safe Max</label>
+                            <input type="number" id="temp-safe-max" step="1">
+                        </div>
+                        <div class="threshold-group">
+                            <label>Moderate Min (below this = Unsafe)</label>
+                            <input type="number" id="temp-mod-min" step="1">
+                        </div>
+                        <div class="threshold-group">
+                            <label>Moderate Max (above this = Unsafe)</label>
+                            <input type="number" id="temp-mod-max" step="1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sensor-section">
+                    <h3>CO2 (ppm)</h3>
+                    <div class="threshold-grid">
+                        <div class="threshold-group">
+                            <label>Safe Max</label>
+                            <input type="number" id="co2-safe" step="50">
+                        </div>
+                        <div class="threshold-group">
+                            <label>Moderate Max</label>
+                            <input type="number" id="co2-moderate" step="50">
+                        </div>
+                        <div class="threshold-group">
+                            <label>Poor Max</label>
+                            <input type="number" id="co2-poor" step="100">
+                        </div>
+                        <div class="threshold-group">
+                            <label>Unsafe Max (above = Dangerous)</label>
+                            <input type="number" id="co2-unsafe" step="100">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sensor-section">
+                    <h3>CO / Gas (raw analog 0-1023)</h3>
+                    <div class="threshold-grid">
+                        <div class="threshold-group">
+                            <label>Safe Max</label>
+                            <input type="number" id="co-safe" step="10">
+                        </div>
+                        <div class="threshold-group">
+                            <label>Moderate Max</label>
+                            <input type="number" id="co-moderate" step="10">
+                        </div>
+                        <div class="threshold-group">
+                            <label>Unsafe Max</label>
+                            <input type="number" id="co-unsafe" step="10">
+                        </div>
+                        <div class="threshold-group">
+                            <label>Dangerous Max (above = Severe)</label>
+                            <input type="number" id="co-dangerous" step="10">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sensor-section">
+                    <h3>Air Quality (%)</h3>
+                    <div class="threshold-grid">
+                        <div class="threshold-group">
+                            <label>Good Max</label>
+                            <input type="number" id="aq-good" step="5">
+                        </div>
+                        <div class="threshold-group">
+                            <label>Moderate Max</label>
+                            <input type="number" id="aq-moderate" step="5">
+                        </div>
+                        <div class="threshold-group">
+                            <label>Sensitive Max</label>
+                            <input type="number" id="aq-sensitive" step="5">
+                        </div>
+                        <div class="threshold-group">
+                            <label>Unhealthy Max</label>
+                            <input type="number" id="aq-unhealthy" step="5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sensor-section">
+                    <h3>Humidity (%)</h3>
+                    <div class="threshold-grid">
+                        <div class="threshold-group">
+                            <label>Comfortable Min</label>
+                            <input type="number" id="hum-comf-min" step="5">
+                        </div>
+                        <div class="threshold-group">
+                            <label>Comfortable Max</label>
+                            <input type="number" id="hum-comf-max" step="5">
+                        </div>
+                        <div class="threshold-group">
+                            <label>Moderate Min</label>
+                            <input type="number" id="hum-mod-min" step="5">
+                        </div>
+                        <div class="threshold-group">
+                            <label>Moderate Max</label>
+                            <input type="number" id="hum-mod-max" step="5">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="save-btn" onclick="saveThresholds()">Save Thresholds</button>
+                <p class="success-msg" id="thresh-success">Thresholds saved</p>
+            </div>
+        </div>
+
+        <!-- user management -->
+        <div class="panel">
+            <h2>User Accounts</h2>
+            <table class="users-table">
+                <thead>
+                    <tr><th>Username</th><th>Role</th><th></th></tr>
+                </thead>
+                <tbody id="users-body">
+                    <tr><td colspan="3">Loading...</td></tr>
+                </tbody>
+            </table>
+
+            <h3 style="font-size:14px; color:#fff; margin-bottom:10px;">Add New User</h3>
+            <div class="add-user-form">
+                <div class="field">
+                    <label>Username</label>
+                    <input type="text" id="new-username">
+                </div>
+                <div class="field">
+                    <label>Password</label>
+                    <input type="password" id="new-password">
+                </div>
+                <div class="field">
+                    <label>Role</label>
+                    <select id="new-role">
+                        <option value="viewer">Viewer</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <button class="add-btn" onclick="addUser()">Add User</button>
+            </div>
+            <p class="success-msg" id="user-success">Done</p>
+        </div>
+    </div>
+
+    <script>
+        async function doLogout() {
+            await fetch("/api/logout", { method: "POST", credentials: "same-origin" });
+            window.location.href = "/login.html";
+        }
+
+        // load thresholds into the form
+        async function loadThresholds() {
+            var res = await fetch("/api/admin/thresholds", { credentials: "same-origin" });
+            if (res.status === 401) { window.location.href = "/login.html"; return; }
+            if (res.status === 403) { window.location.href = "/"; return; }
+            var t = await res.json();
+
+            document.getElementById("temp-safe-min").value = t.temperature.safe_min;
+            document.getElementById("temp-safe-max").value = t.temperature.safe_max;
+            document.getElementById("temp-mod-min").value = t.temperature.moderate_min;
+            document.getElementById("temp-mod-max").value = t.temperature.moderate_max;
+
+            document.getElementById("co2-safe").value = t.co2.safe_max;
+            document.getElementById("co2-moderate").value = t.co2.moderate_max;
+            document.getElementById("co2-poor").value = t.co2.poor_max;
+            document.getElementById("co2-unsafe").value = t.co2.unsafe_max;
+
+            document.getElementById("co-safe").value = t.co.safe_max;
+            document.getElementById("co-moderate").value = t.co.moderate_max;
+            document.getElementById("co-unsafe").value = t.co.unsafe_max;
+            document.getElementById("co-dangerous").value = t.co.dangerous_max;
+
+            document.getElementById("aq-good").value = t.air_quality.good_max;
+            document.getElementById("aq-moderate").value = t.air_quality.moderate_max;
+            document.getElementById("aq-sensitive").value = t.air_quality.sensitive_max;
+            document.getElementById("aq-unhealthy").value = t.air_quality.unhealthy_max;
+
+            document.getElementById("hum-comf-min").value = t.humidity.comfortable_min;
+            document.getElementById("hum-comf-max").value = t.humidity.comfortable_max;
+            document.getElementById("hum-mod-min").value = t.humidity.moderate_min;
+            document.getElementById("hum-mod-max").value = t.humidity.moderate_max;
+        }
+
+        async function saveThresholds() {
+            var payload = {
+                temperature: {
+                    safe_min: Number(document.getElementById("temp-safe-min").value),
+                    safe_max: Number(document.getElementById("temp-safe-max").value),
+                    moderate_min: Number(document.getElementById("temp-mod-min").value),
+                    moderate_max: Number(document.getElementById("temp-mod-max").value),
+                    unit: "F"
+                },
+                co2: {
+                    safe_max: Number(document.getElementById("co2-safe").value),
+                    moderate_max: Number(document.getElementById("co2-moderate").value),
+                    poor_max: Number(document.getElementById("co2-poor").value),
+                    unsafe_max: Number(document.getElementById("co2-unsafe").value),
+                    unit: "ppm"
+                },
+                co: {
+                    safe_max: Number(document.getElementById("co-safe").value),
+                    moderate_max: Number(document.getElementById("co-moderate").value),
+                    unsafe_max: Number(document.getElementById("co-unsafe").value),
+                    dangerous_max: Number(document.getElementById("co-dangerous").value),
+                    unit: "raw"
+                },
+                air_quality: {
+                    good_max: Number(document.getElementById("aq-good").value),
+                    moderate_max: Number(document.getElementById("aq-moderate").value),
+                    sensitive_max: Number(document.getElementById("aq-sensitive").value),
+                    unhealthy_max: Number(document.getElementById("aq-unhealthy").value),
+                    very_unhealthy_max: 300,
+                    unit: "%"
+                },
+                humidity: {
+                    comfortable_min: Number(document.getElementById("hum-comf-min").value),
+                    comfortable_max: Number(document.getElementById("hum-comf-max").value),
+                    moderate_min: Number(document.getElementById("hum-mod-min").value),
+                    moderate_max: Number(document.getElementById("hum-mod-max").value),
+                    unit: "%"
+                }
+            };
+
+            var res = await fetch("/api/admin/thresholds", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+                credentials: "same-origin"
+            });
+
+            if (res.ok) {
+                var msg = document.getElementById("thresh-success");
+                msg.style.display = "block";
+                setTimeout(function() { msg.style.display = "none"; }, 3000);
+            }
+        }
+
+        // user management
+        async function loadUsers() {
+            var res = await fetch("/api/admin/users", { credentials: "same-origin" });
+            if (!res.ok) return;
+            var users = await res.json();
+
+            var html = "";
+            for (var i = 0; i < users.length; i++) {
+                var u = users[i];
+                var roleClass = u.role === "admin" ? "role-admin" : "role-viewer";
+                html += "<tr>";
+                html += "<td>" + u.username + "</td>";
+                html += '<td class="' + roleClass + '">' + u.role + "</td>";
+                html += '<td><button class="delete-btn" onclick="removeUser(\'' + u.username + '\')">Remove</button></td>';
+                html += "</tr>";
+            }
+            document.getElementById("users-body").innerHTML = html;
+        }
+
+        async function addUser() {
+            var username = document.getElementById("new-username").value;
+            var password = document.getElementById("new-password").value;
+            var role = document.getElementById("new-role").value;
+
+            if (!username || !password) return;
+
+            var res = await fetch("/api/users", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: username, password: password, role: role }),
+                credentials: "same-origin"
+            });
+
+            if (res.ok) {
+                document.getElementById("new-username").value = "";
+                document.getElementById("new-password").value = "";
+                var msg = document.getElementById("user-success");
+                msg.textContent = "User added";
+                msg.style.display = "block";
+                setTimeout(function() { msg.style.display = "none"; }, 3000);
+                loadUsers();
+            } else {
+                var err = await res.json();
+                var msg = document.getElementById("user-success");
+                msg.textContent = err.detail || "Failed";
+                msg.style.color = "#e94560";
+                msg.style.display = "block";
+                setTimeout(function() { msg.style.display = "none"; msg.style.color = "#00d97e"; }, 3000);
+            }
+        }
+
+        async function removeUser(username) {
+            if (!confirm("Remove user " + username + "?")) return;
+
+            var res = await fetch("/api/admin/users/" + username, {
+                method: "DELETE",
+                credentials: "same-origin"
+            });
+
+            loadUsers();
+        }
+
+        // check that we're actually an admin
+        async function checkAdmin() {
+            var res = await fetch("/api/me", { credentials: "same-origin" });
+            if (res.status === 401) { window.location.href = "/login.html"; return; }
+            var me = await res.json();
+            if (me.role !== "admin") {
+                window.location.href = "/";
+                return;
+            }
+            loadThresholds();
+            loadUsers();
+        }
+
+        window.addEventListener("DOMContentLoaded", checkAdmin);
+    </script>
+</body>
+</html>
