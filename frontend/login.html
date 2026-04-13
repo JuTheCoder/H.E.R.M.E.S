@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H.E.R.M.E.S. - Login</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            background: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 12px;
+            padding: 40px;
+            width: 380px;
+            text-align: center;
+        }
+
+        .login-box h1 {
+            font-size: 28px;
+            letter-spacing: 3px;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .login-box .tagline {
+            font-size: 12px;
+            color: #667788;
+            margin-bottom: 30px;
+        }
+
+        .login-box input {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 14px;
+            background: #1a1a2e;
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .login-box input:focus {
+            border-color: #e94560;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 6px;
+        }
+
+        .login-box button:hover {
+            background: #c73550;
+        }
+
+        .error-msg {
+            color: #e94560;
+            font-size: 13px;
+            margin-top: 12px;
+            display: none;
+        }
+
+        .lock-icon {
+            font-size: 40px;
+            margin-bottom: 16px;
+            color: #e94560;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <div class="lock-icon">&#9678;</div>
+        <h1>H.E.R.M.E.S.</h1>
+        <p class="tagline">Environmental Monitoring System</p>
+
+        <form id="login-form">
+            <input type="text" id="username" placeholder="Username" autocomplete="username" required>
+            <input type="password" id="password" placeholder="Password" autocomplete="current-password" required>
+            <button type="submit">Sign In</button>
+        </form>
+
+        <p class="error-msg" id="error-msg">Wrong username or password</p>
+    </div>
+
+    <script>
+        document.getElementById("login-form").addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            var user = document.getElementById("username").value;
+            var pass = document.getElementById("password").value;
+            var errEl = document.getElementById("error-msg");
+            errEl.style.display = "none";
+
+            try {
+                var res = await fetch("/api/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+
+                if (res.ok) {
+                    // token gets set as cookie by the server
+                    window.location.href = "/";
+                } else {
+                    errEl.textContent = "Wrong username or password";
+                    errEl.style.display = "block";
+                }
+            } catch (err) {
+                errEl.textContent = "Can't reach the server";
+                errEl.style.display = "block";
+            }
+        });
+    </script>
+</body>
+</html>

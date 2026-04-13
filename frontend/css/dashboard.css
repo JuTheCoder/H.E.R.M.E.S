@@ -1,0 +1,398 @@
+/* ===================================
+   H.E.R.M.E.S. Dashboard Styles
+   Warm tones, clean layout, easy to read
+   =================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #1a1a2e;
+    color: #e0e0e0;
+    min-height: 100vh;
+}
+
+/* --- Top Bar --- */
+
+.top-bar {
+    background: #16213e;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #0f3460;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo-icon {
+    font-size: 28px;
+    color: #e94560;
+}
+
+.logo-section h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 2px;
+}
+
+.subtitle {
+    font-size: 12px;
+    color: #8899aa;
+    margin-left: 4px;
+}
+
+.status-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dot.online {
+    background: #00d97e;
+    box-shadow: 0 0 6px #00d97e;
+}
+
+.dot.offline {
+    background: #e94560;
+    box-shadow: 0 0 6px #e94560;
+}
+
+.last-update {
+    color: #667788;
+    margin-left: 12px;
+    font-size: 12px;
+}
+
+/* --- Alert Banner --- */
+
+.alert-banner {
+    background: #e94560;
+    color: #fff;
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    animation: pulse-bg 1.5s ease-in-out infinite;
+}
+
+.alert-banner.hidden {
+    display: none;
+}
+
+.alert-icon {
+    font-size: 20px;
+}
+
+@keyframes pulse-bg {
+    0%, 100% { background: #e94560; }
+    50% { background: #c73550; }
+}
+
+/* --- Overall Quality Bar --- */
+
+.overall-bar {
+    background: #16213e;
+    padding: 14px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    border-bottom: 1px solid #0f3460;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.overall-bar .status-badge {
+    font-size: 14px;
+    padding: 6px 16px;
+}
+
+/* --- Location Bar --- */
+
+.location-bar {
+    background: #16213e;
+    padding: 10px 24px;
+    font-size: 14px;
+    color: #8899aa;
+    border-bottom: 1px solid #0f3460;
+}
+
+.location-value {
+    color: #ffffff;
+    font-weight: 600;
+    margin-left: 6px;
+}
+
+/* --- Dashboard Layout --- */
+
+.dashboard {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* --- Card Grid --- */
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.sensor-card {
+    background: #16213e;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #0f3460;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.sensor-card:hover {
+    border-color: #e94560;
+    box-shadow: 0 4px 20px rgba(233, 69, 96, 0.15);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.card-icon {
+    font-size: 20px;
+}
+
+.card-title {
+    font-size: 13px;
+    color: #8899aa;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.card-value {
+    margin-bottom: 12px;
+}
+
+.card-value span:first-child {
+    font-size: 36px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.card-unit {
+    font-size: 14px;
+    color: #667788;
+    margin-left: 4px;
+}
+
+/* --- Status Badges --- */
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Color the badges based on status */
+.status-safe        { background: #0d3b2e; color: #00d97e; }
+.status-good        { background: #0d3b2e; color: #00d97e; }
+.status-comfortable { background: #0d3b2e; color: #00d97e; }
+.status-moderate    { background: #3b2e0d; color: #f0b429; }
+.status-poor        { background: #3b200d; color: #e67e22; }
+.status-unsafe      { background: #3b0d0d; color: #e94560; }
+.status-unhealthy   { background: #3b0d0d; color: #e94560; }
+.status-dangerous   { background: #4a0000; color: #ff4444; }
+.status-hazardous   { background: #4a0000; color: #ff4444; }
+.status-severe      { background: #4a0000; color: #ff0000; animation: blink 1s infinite; }
+.status-uncomfortable { background: #3b200d; color: #f0b429; }
+.status-offline     { background: #2a2a3a; color: #667788; }
+.status-online      { background: #0d3b2e; color: #00d97e; }
+.status-waiting     { background: #2a2a3a; color: #667788; }
+.status-unknown     { background: #2a2a3a; color: #667788; }
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* --- Danger card highlight --- */
+.sensor-card.danger {
+    border-color: #e94560;
+    box-shadow: 0 0 15px rgba(233, 69, 96, 0.3);
+}
+
+/* --- Chart Section --- */
+
+.chart-section {
+    background: #16213e;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    border: 1px solid #0f3460;
+}
+
+.chart-section h2 {
+    font-size: 16px;
+    color: #ffffff;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+/* --- History Table --- */
+
+.table-section {
+    background: #16213e;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #0f3460;
+}
+
+.table-section h2 {
+    font-size: 16px;
+    color: #ffffff;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead th {
+    background: #0f3460;
+    color: #8899aa;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    border-bottom: 2px solid #1a1a2e;
+}
+
+tbody td {
+    padding: 10px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid #0f3460;
+    color: #c0c0c0;
+}
+
+tbody tr:hover {
+    background: #1e2a4a;
+}
+
+.empty-row {
+    text-align: center;
+    color: #667788;
+    padding: 30px;
+}
+
+/* Alert cell styling */
+td.alert-yes {
+    color: #e94560;
+    font-weight: 600;
+}
+
+td.alert-no {
+    color: #00d97e;
+}
+
+/* --- Responsive --- */
+
+/* --- Logout Button --- */
+
+.logout-btn {
+    background: transparent;
+    border: 1px solid #e94560;
+    color: #e94560;
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-left: 12px;
+    font-weight: 600;
+}
+
+.logout-btn:hover {
+    background: #e94560;
+    color: #fff;
+}
+
+/* --- SMS Status --- */
+
+.sms-indicator {
+    font-size: 12px;
+    color: #667788;
+    margin-left: 12px;
+}
+
+.sms-active {
+    color: #00d97e;
+    font-weight: 600;
+}
+
+.sms-off {
+    color: #667788;
+}
+
+@media (max-width: 768px) {
+    .top-bar {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+    }
+
+    .card-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .subtitle {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
+}
