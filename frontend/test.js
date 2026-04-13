@@ -44,6 +44,7 @@ async function fetchThresholds() {
         document.getElementById("co2_threshold").innerHTML = data.co2_thresh;
         document.getElementById("co_threshold").innerHTML = data.co_thresh;
         document.getElementById("air_threshold").innerHTML = data.air_thresh;
+        document.getElementById("overall_threshold").innerHTML = data.overall_thresh;
 
     } catch (error) {
         console.error("Error fetching thresholds:", error);
