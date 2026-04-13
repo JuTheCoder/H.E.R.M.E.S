@@ -46,7 +46,7 @@ def threshold(name, value):
         elif(value > 300):
             return "Hazardous"
 
-# Thsi function maps each of the threshold labels to a number that we will use to determine the overall quality
+# This function maps each of the threshold labels to a number that we will use to determine the overall quality
 def severity_score(label):
     scores = {
         "No Data": -1,
@@ -65,6 +65,8 @@ def severity_score(label):
         "Dangerous": 4,
         "Very Unhealthy": 4,
     }
+
+    return scores.get(label,-1)
 
 # Defines the overall quality of air given the threshold of each air characteristic
 def overall_threshold(temp, co2, co, air):
