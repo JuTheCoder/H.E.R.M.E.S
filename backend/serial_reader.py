@@ -1,5 +1,5 @@
-import serial 
 import json
+import serial
 import requests
 
 # Port for the Arduino and the Rate number 
@@ -28,9 +28,9 @@ while True:
         # Maps the data we actually need to the SensorReading format that our Post endpoint will use
         payload = {
             "co2": data["co2"],
-            "co": data["co_mq2"],
-            "air": data["aq_percent"],   
-            "temperature": data["temp_f"]
+            "co": data["co"],
+            "air": data["air"],   
+            "temperature": data["temperature"]
         }
 
         print("Sending: ", payload)
@@ -42,6 +42,7 @@ while True:
         print("Sent to API: ", response.status_code)
         print("Response:", response.text)
 
+        
     # Error handling
     except json.JSONDecodeError:
         print("Invalid JSON, skipping...")
