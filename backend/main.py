@@ -138,7 +138,7 @@ def thold():
     overall_thresh = overall_threshold(temp_thresh, co2_thresh, co_thresh, air_thresh)
 
     return {
-        "temperature_thresh": temp_thresh,
+        "temp_thresh": temp_thresh,
         "co2_thresh": co2_thresh,
         "co_thresh": co_thresh,
         "air_thresh": air_thresh,
