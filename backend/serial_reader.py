@@ -29,7 +29,7 @@ while True:
         payload = {
             "co2": data["co2"],
             "co": data["co"],
-            "air": data["air"],   
+            "air": data["aq_percent"],   
             "temperature": data["temperature"]
         }
 
