@@ -130,10 +130,10 @@ def data():
 
 @app.get("/api/threshold", response_model=Threshold)
 def thold():
-    temp_thresh = threshold("temperature", latest_data.get("temperature", 0.0)),
-    co2_thresh = threshold("co2", latest_data.get("co2", 0)),
-    co_thresh = threshold("co", latest_data.get("co", 0)),
-    air_thresh = threshold("air", latest_data.get("air", 0)),
+    temp_thresh = threshold("temperature", latest_data.get("temperature", 0.0))
+    co2_thresh = threshold("co2", latest_data.get("co2", 0))
+    co_thresh = threshold("co", latest_data.get("co", 0))
+    air_thresh = threshold("air", latest_data.get("air", 0))
 
     overall_thresh = overall_threshold(temp_thresh, co2_thresh, co_thresh, air_thresh)
 
