@@ -103,7 +103,7 @@ async def receive_sensor_data(reading: SensorReading):
     if is_dangerous:
         # 3. Check Cooldown (Prevents SMS spam)
         if (current_time - last_alert_time) > COOLDOWN_SECONDS:
-            alert_msg = f"⚠️ H.E.R.M.E.S. ALERT: Dangerous Levels! CO2: {reading.co2}ppm, CO: {reading.co}ppm"
+            alert_msg = f"H.E.R.M.E.S. ALERT: Dangerous Levels! CO2: {reading.co2}ppm, CO: {reading.co}ppm"
             
             # Use the dedicated send function
             success = send_twilio_sms(alert_msg)
