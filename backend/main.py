@@ -72,16 +72,16 @@ def send_twilio_sms(message_body: str):
         response = requests.post(url, data=data, auth=(TWILIO_SID, TWILIO_TOKEN), timeout=10)
         
         if 200 <= response.status_code < 300:
-            print("✅ Twilio Alert Sent Successfully!")
+            print("Twilio Alert Sent Successfully!")
             return True # Fixes Pylint E1111
         else:
-            print(f"❌ Twilio Alert Failed! Status: {response.status_code}")
+            print(f"Twilio Alert Failed! Status: {response.status_code}")
             # THIS LINE TELLS US EXACTLY WHY IT FAILED (e.g., Unverified Number)
             print(f"DEBUG INFO: {response.text}")
             return False # Fixes Pylint E1111
             
     except requests.exceptions.RequestException as e:
-        print(f"❌ Network Error: {e}")
+        print(f"Network Error: {e}")
         return False
 
 @app.post("/api/sensor-data")
