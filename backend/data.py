@@ -71,7 +71,7 @@ def severity_score(label):
 # Defines the overall quality of air given the threshold of each air characteristic
 def overall_threshold(temp, co2, co, air):
     labels = [
-        threshold("temperature", temp),
+        threshold("temperature", temp), #
         threshold("co2", co2),
         threshold("co", co),
         threshold("air", air)
