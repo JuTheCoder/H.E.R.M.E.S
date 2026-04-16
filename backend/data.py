@@ -1,53 +1,61 @@
+"""
+data.py
+"""
 
-# This function determines the threshold of each air characteristic by it's name and value
 def threshold(name, value):
-    if value is None: 
+    """
+    Determines the threshold of each sensor reading by it's name and value
+    """
+    if value is None:
         return "No Data"
-    if(name == "temperature"):
-        if(value >= 68 and value <= 77):
+    if name == "temperature":
+        if 68 <= value <= 77:
             return "Safe"
-        elif((value >= 60 and value <= 67) or (value >= 78 and value <= 85)):
+        if (60 <= value <= 67) or (78 <= value <= 85):
             return "Moderate"
-        elif(value < 60 or value > 85):
+        if 60 < value > 85:
             return "Unsafe"
-    if(name == "co2"):
-        if(value >= 400 and value <= 800):
+    if name == "co2" :
+        if 400 <= value <= 800:
             return "Safe"
-        elif(value >= 801 and value <= 1000):
+        if 801 <= value <= 1000:
             return "Moderate"
-        elif(value >= 1001 and value <= 2000):
+        if 1001 <= value <= 2000:
             return "Poor"
-        elif(value >= 2001 and value <= 5000):
+        if 2001 <= value <= 5000:
             return "Unsafe"
-        elif(value > 5000):
+        if value > 5000:
             return "Dangerous"
-    if(name == "co"):
-        if(value >= 0 and value <= 5):
+    if name == "co":
+        if 0 <= value <= 5:
             return "Safe"
-        elif(value >= 6 and value <= 9):
+        if 6 <= value <= 9:
             return "Moderate"
-        elif(value >= 10 and value <= 35):
+        if 10 <= value <= 35:
             return "Unsafe"
-        elif(value >= 36 and value <= 200):
+        if 36 <= value <= 200:
             return "Dangerous"
-        elif(value > 200):
+        if value > 200:
             return "Severe Danger"
-    if(name == "air"):
-        if(value >= 0 and value <= 50):
+    if name == "air":
+        if 0 <= value <= 50:
             return "Good"
-        elif(value >= 51 and value <= 100):
+        if 51 <= value <= 100:
             return "Moderate"
-        elif(value >= 101 and value <= 150):
+        if 101 <= value <= 150:
             return "Unhealthy for sensitive groups"
-        elif(value >= 151 and value <= 200):
+        if 151 <= value <= 200:
             return "Unhealthy"
-        elif(value >= 201 and value <= 300):
+        if 201 <= value <= 300:
             return "Very Unhealthy"
-        elif(value > 300):
+        if value > 300:
             return "Hazardous"
 
-# This function maps each of the threshold labels to a number that we will use to determine the overall quality
 def severity_score(label):
+    """
+    Maps each of the threshold labels to a number that we will 
+    use to determine the overall environmental quality.
+    """
     scores = {
         "No Data": -1,
 
@@ -68,10 +76,14 @@ def severity_score(label):
 
     return scores.get(label,-1)
 
-# Defines the overall quality of air given the threshold of each air characteristic
+
 def overall_threshold(temp, co2, co, air):
+    """
+    Defines the overall quality of air given the threshold of 
+    each air characteristic.
+    """
     labels = [
-        threshold("temperature", temp), #
+        threshold("temperature", temp),
         threshold("co2", co2),
         threshold("co", co),
         threshold("air", air)
@@ -81,20 +93,21 @@ def overall_threshold(temp, co2, co, air):
 
     for label in labels:
         score = severity_score(label)
-        if score > max_score:
-            max_score = score
+        # if score > max_score:
+        #     max_score = score
+        max_score = max(max_score, score)
 
     if max_score == -1:
         return "No Data"
-    elif max_score == 0:
+    if max_score == 0:
         return "Safe"
-    elif max_score == 1:
+    if max_score == 1:
         return "Moderate"
-    elif max_score == 2:
+    if max_score == 2:
         return "Poor"
-    elif max_score == 3:
+    if max_score == 3:
         return "Unsafe"
-    elif max_score == 4:
+    if max_score == 4:
         return "Dangerous"
-    else: 
+    else:
         return "Severe Danger"
