@@ -1,55 +1,70 @@
 """
-data.py
+data.py: handles the assignment of safety ratings for
+each sensor reading based on returned values, also
+assigns a safety rating to the overall quality by
+summing up the ratings of the individual readings.
 """
-
 def threshold(name, value):
     """
-    Determines the threshold of each sensor reading by it's name and value
+    Determines the safety level of each sensor reading by assigning it
+    a safety level depending on the range of its returned numerical value;.
     """
     if value is None:
         return "No Data"
     if name == "temperature":
         if 68 <= value <= 77:
             return "Safe"
-        if (60 <= value <= 67) or (78 <= value <= 85):
+        if (45 <= value <= 67) or (78 <= value <= 85):
             return "Moderate"
-        if 60 < value > 85:
+        if (value < 45) or (85 < value):
             return "Unsafe"
-    if name == "co2" :
-        if 400 <= value <= 800:
+    if name == "co2":
+        if 0 <= value <= 800:
             return "Safe"
         if 801 <= value <= 1000:
             return "Moderate"
-        if 1001 <= value <= 2000:
-            return "Poor"
-        if 2001 <= value <= 5000:
+        if 1001 <= value <= 2500:
             return "Unsafe"
+        if 2501 <= value <= 5000:
+            return "Poor"
         if value > 5000:
             return "Dangerous"
     if name == "co":
-        if 0 <= value <= 5:
+        if 0 <= value <= 14:
             return "Safe"
-        if 6 <= value <= 9:
+        if 15 <= value <= 34:
             return "Moderate"
-        if 10 <= value <= 35:
+        if 35 <= value <= 75:
             return "Unsafe"
-        if 36 <= value <= 200:
+        if 76 <= value <= 149:
             return "Dangerous"
-        if value > 200:
+        if value > 150:
             return "Severe Danger"
     if name == "air":
-        if 0 <= value <= 50:
-            return "Good"
-        if 51 <= value <= 100:
+        if 0 <= value <= 150:
+            return "Safe"
+        if 151 <= value <= 400:
             return "Moderate"
-        if 101 <= value <= 150:
-            return "Unhealthy for sensitive groups"
-        if 151 <= value <= 200:
-            return "Unhealthy"
-        if 201 <= value <= 300:
-            return "Very Unhealthy"
-        if value > 300:
-            return "Hazardous"
+        if 401 <= value <= 1000:
+            return "Unsafe"
+        if 1001 <= value <= 5000:
+            return "Dangerous"
+        if value > 5000:
+            return "Severe Danger"
+    return None
+    # if name == "air":
+    #     if 0 <= value <= 50:
+    #         return "Good"
+    #     if 51 <= value <= 100:
+    #         return "Moderate"
+    #     if 101 <= value <= 150:
+    #         return "Unhealthy for sensitive groups"
+    #     if 151 <= value <= 200:
+    #         return "Unhealthy"
+    #     if 201 <= value <= 300:
+    #         return "Very Unhealthy"
+    #     if value > 300:
+    #         return "Hazardous"
 
 def severity_score(label):
     """
@@ -58,24 +73,19 @@ def severity_score(label):
     """
     scores = {
         "No Data": -1,
-
-        "Good": 0,
+        #"Good": 0,
         "Safe": 0,
-
         "Moderate": 1,
-
         "Poor": 2,
-        "Unhealthy for sensitive groups": 2,
-
+        #"Unhealthy for sensitive groups": 2,
         "Unsafe": 3,
-        "Unhealthy": 3,
-
+        #"Unhealthy": 3,
         "Dangerous": 4,
-        "Very Unhealthy": 4,
+        #"Very Unhealthy": 4,
+        "Severe Danger": 5
     }
 
-    return scores.get(label,-1)
-
+    return scores.get(label, -1)
 
 def overall_threshold(temp, co2, co, air):
     """
@@ -90,24 +100,21 @@ def overall_threshold(temp, co2, co, air):
     ]
 
     max_score = -1
+    print("max score before", max_score)
 
     for label in labels:
         score = severity_score(label)
-        # if score > max_score:
-        #     max_score = score
         max_score = max(max_score, score)
+        print("max score now", max_score)
 
-    if max_score == -1:
-        return "No Data"
-    if max_score == 0:
-        return "Safe"
-    if max_score == 1:
-        return "Moderate"
-    if max_score == 2:
-        return "Poor"
-    if max_score == 3:
-        return "Unsafe"
-    if max_score == 4:
-        return "Dangerous"
-    else:
-        return "Severe Danger"
+    # Assigns a severity level based on the returned number
+    num_to_severity = {
+        -1: "No Data",
+        0: "Safe",
+        1: "Moderate",
+        2: "Poor",
+        3: "Unsafe",
+        4: "Dangerous",
+        5: "Severe Danger"
+    }
+    return num_to_severity.get(max_score, "Severe Danger")
