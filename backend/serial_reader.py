@@ -1,5 +1,6 @@
 """
-serial_reader.py
+serial_reader.py: Receives each set of live sensor readings and
+sends them to the UI to be displayed.
 """
 import json
 import serial
