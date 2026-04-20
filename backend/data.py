@@ -100,12 +100,10 @@ def overall_threshold(temp, co2, co, air):
     ]
 
     max_score = -1
-    print("max score before", max_score)
 
     for label in labels:
         score = severity_score(label)
         max_score = max(max_score, score)
-        print("max score now", max_score)
 
     # Assigns a severity level based on the returned number
     num_to_severity = {

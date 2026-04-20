@@ -14,7 +14,6 @@ API_URL = "http://127.0.0.1:8000/api/sensor-data"
 
 # Opens up a pipeline to the Arduino 
 ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
-
 print("Listening to Arduino...")
 
 while True:

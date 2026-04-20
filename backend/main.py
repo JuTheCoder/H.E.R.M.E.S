@@ -1,11 +1,12 @@
 """
 main.py: Handles the structure for endpoints and sensor readings,
-continuously retrieves/stores sensor readings, and sends remote 
+continuously retrieves/stores sensor readings, and sends remote
 alerts if any of the four thresholds are exceeded.
 """
 import time
 import os
 import requests
+import serial
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,6 +33,9 @@ TWILIO_SID = os.getenv("TWILIO_SID")
 TWILIO_TOKEN = os.getenv("TWILIO_TOKEN")
 TWILIO_PHONE = os.getenv("TWILIO_PHONE")
 MY_PHONE = os.getenv("MY_PHONE")
+
+ser = serial.Serial('/dev/cu.usbmodem101', 9600, timeout=1)
+time.sleep(2)
 
 app = FastAPI()
 
@@ -114,6 +118,15 @@ async def receive_sensor_data(reading: SensorReading):
 
     # Checks if any of the returned values are higher than their threshold
     is_dangerous = reading.co2 > 1000
+
+    # Sends communication back to Arduino based on alert status
+    if ser.is_open:
+        if is_dangerous:
+            # Prompts system to beep and flash a red light
+            ser.write(b'1')
+        else:
+            # Nothing happens/beeping and flashing turn off
+            ser.write(b'0')
 
     current_time = time.time()
 
