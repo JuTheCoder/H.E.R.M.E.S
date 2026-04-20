@@ -9,7 +9,7 @@ function myFunction(){
 
 const api_data_url = 'http://127.0.0.1:8000/api/data';
 const api_thres_url = 'http://127.0.0.1:8000/api/threshold';
-
+//Hello
 const labels = ["1", "2", "3", "4", "5"];
 const tempData = [];
 const co2Data = [];
