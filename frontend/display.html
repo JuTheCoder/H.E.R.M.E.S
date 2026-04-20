@@ -1,47 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>
             H.E.R.M.E.S. Air Status
         </title>
         <link rel="stylesheet" type="text/css" href="styles.css">
-        <script src = "test.js"></script>
+        <script src = "https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src = "test.js" defer></script>
     </head>
-
+<body>
+    <div class="container">
     <h1>
-        Welcome to H.E.R.M.E.S. Air Data Display
+        H.E.R.M.E.S. Air Data Display
     </h1>
+    <p class="subtitle">Live enviornmental sensor readings</p>
+
+    <div class="status-box">
+        <h2>Overall Quality</h2>
+        <span id="overall_threshold" class="badge">Waiting</span>
+    </div>
     <table>
-        <tr>
+        <thead>
+            <tr>
             <th>Air Characteristics</th>
             <th>Measurement</th>
             <th>Levels</th>
             <th>Threshold</th>
         </tr>
-        <tr>
+        </thead>
+        <tbody>
+            <tr>
             <th>Temperature</th>
             <th>&deg;F</th>
             <th id= "temperature_level">0.0</th>
-            <th id= "temp_threshold">Waiting</th>
+            <th id= "temp_threshold" class="badge">Waiting</th>
         </tr>
         <tr>
             <th>CO2</th>
             <th>PPM</th>
             <th id= "co2_level">0.0</th>
-            <th id= "co2_threshold">Waiting</th>
+            <th id= "co2_threshold" class="badge">Waiting</th>
         </tr>
         <tr>
             <th>CO</th>
             <th>PPM</th>
             <th id= "co_level">0.0</th>
-            <th id= "co_threshold">Waiting</th>
+            <th id= "co_threshold" class="badge">Waiting</th>
         </tr>
         <tr>
             <th>Air Quality</th>
             <th>%</th>
             <th id= "air_level">0.0</th>
-            <th id= "air_threshold">Waiting</th>
+            <th id= "air_threshold" class="badge">Waiting</th>
         </tr>
+        </tbody> 
     </table>
-    <p1>Overall Quality: <span id="overall_threshold">Waiting</span></p1>
+        <div class="graphs-container">
+            <div class="chart-box">
+                <h2>Temperature</h2>
+                <canvas id="tempChart"></canvas>
+            </div>
+
+            <div class="chart-box">
+                <h2>CO2</h2>
+                <canvas id="co2Chart"></canvas>
+            </div>
+
+            <div class="chart-box">
+                <h2>CO</h2>
+                <canvas id="coChart"></canvas>
+            </div>
+
+            <div class="chart-box">
+                <h2>Air Quality</h2>
+                <canvas id="airChart"></canvas>
+            </div>
+        </div>
+    </div>
+</body>  
 </html>
