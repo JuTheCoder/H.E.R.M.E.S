@@ -10,6 +10,105 @@ function myFunction(){
 const api_data_url = 'http://127.0.0.1:8000/api/data';
 const api_thres_url = 'http://127.0.0.1:8000/api/threshold';
 
+const labels = ["1", "2", "3", "4", "5"];
+const tempData = [];
+const co2Data = [];
+const coData = [];
+const airData = [];
+
+// Creates and displays the temperature data captured by our 
+const tempChart = new Chart(document.getElementById("tempChart"), {
+    type: "line",
+    data: {
+        labels: labels,
+        datasets: [{
+            label: "Temperature (F)",
+            data: tempData,
+            borderWidth: 2,
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        animation: false
+    }
+});
+
+
+const co2Chart = new Chart(document.getElementById("co2Chart"), {
+    type: "line",
+    data: {
+        labels: labels,
+        datasets: [{
+            label: "CO2 (PPM)",
+            data: co2Data,
+            borderWidth: 2,
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        animation: false
+    }
+});
+
+
+const coChart = new Chart(document.getElementById("coChart"), {
+    type: "line",
+    data: {
+        labels: labels,
+        datasets: [{
+            label: "CO (PPM)",
+            data: coData,
+            borderWidth: 2,
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        animation: false
+    }
+});
+
+
+const airChart = new Chart(document.getElementById("airChart"), {
+    type: "line",
+    data: {
+        labels: labels,
+        datasets: [{
+            label: "Air Quality (%)",
+            data: airData,
+            borderWidth: 2,
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        animation: false
+    }
+});
+
+
+// Applies color to each of the thresholds depending on their value
+function applyColor(element, value){
+    element.className = "badge"
+
+    if (!value){
+        element.classList.add("waiting");
+        return;
+    }
+
+    const v = value.toLowerCase()
+
+    if(v.includes("safe")) element.classList.add("safe");
+    else if (v.includes("moderate")) element.classList.add("moderate");
+    else if (v.includes("poor")) element.classList.add("poor");
+    else if (v.includes("unsafe")) element.classList.add("unsafe");
+    else if (v.includes("danger")) element.classList.add("dangerous");
+    else element.classList.add("waiting");
+}
+
+
 // Fetch sensor values
 async function fetchData() {
     try {
@@ -23,8 +122,28 @@ async function fetchData() {
         document.getElementById("temperature_level").innerHTML = data.temperature;
         document.getElementById("co2_level").innerHTML = data.co2;
         document.getElementById("co_level").innerHTML = data.co;
-        document.getElementById("air_level").innerHTML = data.air; // important change
+        document.getElementById("air_level").innerHTML = data.air; 
 
+        const now = new Data().toLocaleTimeString();
+
+        labels.push(now);
+        tempData.push(data.temperature);
+        co2Data.push(data.co2);
+        coData.push(data.co);
+        airData.push(data.air);
+
+        if (labels.length > 10) {
+            labels.shift();
+            tempData.shift();
+            co2Data.shift();
+            coData.shift();
+            airData.shift();
+        }
+
+        tempChart.update();
+        co2Chart.update();
+        coChart.update();
+        airChart.update();
     } catch (error) {
         console.error("Error fetching data:", error);
     }
@@ -40,11 +159,26 @@ async function fetchThresholds() {
 
         console.log("Thresholds:", data);
 
-        document.getElementById("temp_threshold").innerHTML = data.temp_thresh;
-        document.getElementById("co2_threshold").innerHTML = data.co2_thresh;
-        document.getElementById("co_threshold").innerHTML = data.co_thresh;
-        document.getElementById("air_threshold").innerHTML = data.air_thresh;
-        document.getElementById("overall_threshold").innerHTML = data.overall_thresh;
+        // Created variables that will hold the threshold values
+        const tempEl = document.getElementById("temp_threshold");
+        const co2El = document.getElementById("co2_threshold");
+        const coEl = document.getElementById("co_threshold");
+        const airEl = document.getElementById("air_threshold");
+        const overallEl = document.getElementById("overall_threshold");
+
+        // Display the thresholds
+        tempEl.innerHTML = data.temp_thresh;
+        co2El.innerHTML = data.co2_thresh;
+        coEl.innerHTML = data.co_thresh;
+        airEl.innerHTML = data.air_thresh;
+        overallEl.innerHTML = data.overall_thresh;
+
+        // This will apply colors using the applyColor function above
+        applyColor(tempEl, data.temp_thresh);
+        applyColor(co2El, data.co2_thresh);
+        applyColor(coEl, data.co_thresh);
+        applyColor(airEl, data.air_thresh);
+        applyColor(overallEl, data.overall_thresh);
 
     } catch (error) {
         console.error("Error fetching thresholds:", error);
