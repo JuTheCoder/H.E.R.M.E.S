@@ -10,13 +10,14 @@ function myFunction(){
 const api_data_url = 'http://127.0.0.1:8000/api/data';
 const api_thres_url = 'http://127.0.0.1:8000/api/threshold';
 
-const labels = ["1", "2", "3", "4", "5"];
+// These arrays will hold the data coming from the POST endpoint and will be used to update each graph with the data in it
+const labels = [];
 const tempData = [];
 const co2Data = [];
 const coData = [];
 const airData = [];
 
-// Creates and displays the temperature data captured by our 
+// Creates and displays the temperature data captured by our POST endpoint
 const tempChart = new Chart(document.getElementById("tempChart"), {
     type: "line",
     data: {
@@ -34,7 +35,7 @@ const tempChart = new Chart(document.getElementById("tempChart"), {
     }
 });
 
-
+// Creates and displays the CO2 data captured by our POST endpoint 
 const co2Chart = new Chart(document.getElementById("co2Chart"), {
     type: "line",
     data: {
@@ -52,7 +53,7 @@ const co2Chart = new Chart(document.getElementById("co2Chart"), {
     }
 });
 
-
+// Creates and displays the CO data captured by our POST endpoint 
 const coChart = new Chart(document.getElementById("coChart"), {
     type: "line",
     data: {
@@ -70,7 +71,7 @@ const coChart = new Chart(document.getElementById("coChart"), {
     }
 });
 
-
+// Creates and displays the air quality data captured by our POST endpoint 
 const airChart = new Chart(document.getElementById("airChart"), {
     type: "line",
     data: {
@@ -124,8 +125,8 @@ async function fetchData() {
         document.getElementById("co_level").innerHTML = data.co;
         document.getElementById("air_level").innerHTML = data.air; 
 
-        const now = new Data().toLocaleTimeString();
-
+        const now = new Date().toLocaleTimeString();
+        
         labels.push(now);
         tempData.push(data.temperature);
         co2Data.push(data.co2);
