@@ -1,13 +1,16 @@
 import json
 import serial
 import requests
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Port for the Arduino and the Rate number 
-SERIAL_PORT = "/dev/cu.usbmodem101"
+SERIAL_PORT = "/dev/ttyACM0"
 BAUD_RATE = 9600
 
 # Post endpoint that'll send the data to our API
-API_URL = "http://127.0.0.1:8000/api/sensor-data"
+API_URL = "https://127.0.0.1:8000/api/sensor-data"
 
 # Opens up a pipeline to the Arduino 
 ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
@@ -36,7 +39,7 @@ while True:
         print("Sending: ", payload)
 
         # Calling our Post endpoint and send the data to our API
-        response = requests.post(API_URL, json=payload)
+        response = requests.post(API_URL, json=payload, verify=False)
 
         # Comfermation that the data was sent to our API (200 = Successful)
         print("Sent to API: ", response.status_code)
