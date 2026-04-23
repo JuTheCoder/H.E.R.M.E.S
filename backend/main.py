@@ -9,6 +9,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from data import threshold, overall_threshold
+#Lets FastAPI serve our frontend files directly instead of needing Live Server
+from fastapi.staticfiles import StaticFiles 
+from fastapi.responses import FileResponse
 
 # Stores latest reading
 latest_data = {
@@ -173,3 +176,8 @@ def thold():
         "air_thresh": air_thresh,
         "overall_thresh": overall_thresh
     }
+
+#Serves the frontend files (HTML, CSS, JS) straight from FastAPI
+app.mount("/", StaticFiles(directory="../frontend", html=True), name ="frontend")
+
+
