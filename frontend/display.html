@@ -78,6 +78,33 @@
                 <canvas id="airChart"></canvas>
             </div>
         </div>
+        <div class="threshold-settings">
+            <h2>Temperature Threshold Settings</h2>
+
+            <label for=""safe_min>Safe Min</label>
+            <input type="number" id="safe_min" placeholder="68">
+
+            <label for="safe_max">Safe Max</label>
+            <input type="number" id="safe_max" placeholder="77">
+
+            <label for="moderate_low_min">Moderate Low Min</label>
+            <input type="number" id="moderate_low_min" placeholder="60">
+
+            <label for="moderate_low_max">Moderate Low Max</label>
+            <input type="number" id="moderate_low_max" placeholder="67">
+
+            <label for="moderate_high_min">Moderate High Min</label>
+            <input type="number" id="moderate_high_min" placeholder="78">
+
+            <label for="moderate_high_max">Moderate High Max</label>
+            <input type="number" id="moderate_high_max" placeholder="85">
+
+            <button onclick="saveTemperatureThresholds()">Save Thresholds</button>
+            <button onclick="resetTemperatureThresholds()">Reset to Default</button>
+
+
+        </div>
+
     </div>
 </body>  
 </html>

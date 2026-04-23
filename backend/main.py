@@ -18,6 +18,8 @@ latest_data = {
     "air": 0
 }
 
+custom_thresholds = {}
+
 # Variables used to prevent alert spamming
 last_alert_time = 0
 COOLDOWN_SECONDS = 1800  # 30 Minutes
@@ -45,6 +47,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Format for the custom Temp thresholds
+class TempThresholds(BaseModel):
+    safe_min: int
+    safe_max: int
+    moderate_low_min: int
+    moderate_low_max: int
+    moderate_high_min: int
+    moderate_high_max: int
 
 # Format for the threshold endpoint
 class Threshold(BaseModel):
@@ -173,3 +184,20 @@ def thold():
         "air_thresh": air_thresh,
         "overall_thresh": overall_thresh
     }
+
+# POST endpoint that will allow the frontend to send the custom thresholds to our backend
+@app.post("/api/temperature-threshold")
+def set_temperature_threshold(data: TempThresholds):
+    custom_thresholds["temperature"] = data.model_dump()
+    return {
+        "message": "Temperature thresholds updated",
+        "new_values": custom_thresholds["temperature"]
+    }
+
+# POST endpoint that will reset the Temperature thresholds to its default settings/values
+@app.post("/api/reset-temperature-threshold")
+def reset_temperature_threshold():
+    if "temperature" in custom_thresholds:
+        del custom_thresholds["temperature"]
+
+    return {"message": "Temperature thresholds reset to default"}

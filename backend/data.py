@@ -2,19 +2,39 @@
 data.py
 """
 
+# This will hold the custom theshold values that the user wants
+custom_thresholds = {}
+
 def threshold(name, value):
     """
     Determines the threshold of each sensor reading by it's name and value
     """
     if value is None:
         return "No Data"
+    
     if name == "temperature":
-        if 68 <= value <= 77:
+        settings = custom_thresholds.get("temperature", {
+            "safe_min": 68,
+            "safe_max": 77,
+            "moderate_low_min": 60,
+            "moderate_low_max": 67,
+            "moderate_high_min": 78,
+            "moderate_high_max": 85
+        })
+
+        if(settings["safe_min"] <= value <= settings["safe_max"]):
+            return "Safe"
+        elif(settings["moderate_low_min"] <= value <= settings["moderate_low_max"]) or (settings["moderate_high_min"] <= value <= settings["moderate_high_max"]):
+            return "Moderate"
+        else:   
+            return "Unsafe"
+        """if 68 <= value <= 77:
             return "Safe"
         if (60 <= value <= 67) or (78 <= value <= 85):
             return "Moderate"
         if 60 < value > 85:
-            return "Unsafe"
+            return "Unsafe"""
+        
     if name == "co2" :
         if 400 <= value <= 800:
             return "Safe"
@@ -26,6 +46,7 @@ def threshold(name, value):
             return "Unsafe"
         if value > 5000:
             return "Dangerous"
+        return "No Data"
     if name == "co":
         if 0 <= value <= 5:
             return "Safe"
@@ -37,6 +58,7 @@ def threshold(name, value):
             return "Dangerous"
         if value > 200:
             return "Severe Danger"
+        return "No Data"
     if name == "air":
         if 0 <= value <= 50:
             return "Good"
@@ -50,6 +72,8 @@ def threshold(name, value):
             return "Very Unhealthy"
         if value > 300:
             return "Hazardous"
+        return "No Data"
+    return "No Data"
 
 def severity_score(label):
     """
@@ -72,6 +96,8 @@ def severity_score(label):
 
         "Dangerous": 4,
         "Very Unhealthy": 4,
+        "Hazardous": 4,
+        "Severe Danger": 4
     }
 
     return scores.get(label,-1)
@@ -109,5 +135,3 @@ def overall_threshold(temp, co2, co, air):
         return "Unsafe"
     if max_score == 4:
         return "Dangerous"
-    else:
-        return "Severe Danger"

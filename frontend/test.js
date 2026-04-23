@@ -9,6 +9,8 @@ function myFunction(){
 
 const api_data_url = 'http://127.0.0.1:8000/api/data';
 const api_thres_url = 'http://127.0.0.1:8000/api/threshold';
+const tempThresholdUrl = "http://127.0.0.1:8000/api/temperature-threshold";
+const resetTempThresholdUrl = "http://127.0.0.1:8000/api/reset-temperature-threshold";
 
 // These arrays will hold the data coming from the POST endpoint and will be used to update each graph with the data in it
 const labels = [];
@@ -126,7 +128,7 @@ async function fetchData() {
         document.getElementById("air_level").innerHTML = data.air; 
 
         const now = new Date().toLocaleTimeString();
-        
+
         labels.push(now);
         tempData.push(data.temperature);
         co2Data.push(data.co2);
@@ -183,6 +185,68 @@ async function fetchThresholds() {
 
     } catch (error) {
         console.error("Error fetching thresholds:", error);
+    }
+}
+
+async function saveTemperatureThresholds(){
+
+    if(
+        document.getElementById("safe_min").value === "" ||
+        document.getElementById("safe_max").value === "" ||
+        document.getElementById("moderate_low_min").value === "" ||
+        document.getElementById("moderate_low_max").value === "" ||
+        document.getElementById("moderate_high_min").value === "" ||
+        document.getElementById("moderate_high_max").value === ""
+    ) {
+        alert("Please fill in all threshold fields");
+        return;
+    }
+
+    const payload = {
+        safe_min: Number(document.getElementById("safe_min").value),
+        safe_max: Number(document.getElementById("safe_max").value),
+        moderate_low_min: Number(document.getElementById("moderate_low_min").value),
+        moderate_low_max: Number(document.getElementById("moderate_low_max").value),
+        moderate_high_min: Number(document.getElementById("moderate_high_min").value),
+        moderate_high_max: Number(document.getElementById("moderate_high_max").value)
+    };
+
+    try{
+        const res = await fetch(tempThresholdUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if(!res.ok) throw new Error("Failed to save temperature thresholds");
+
+        const data = await res.json();
+        console.log("Saved temperature thresholds:", data);
+        alert("Temperature thresholds updated successfully");
+        fetchThresholds();
+    } catch(error){
+        console.error("Errpr saving temperature thresholds:", error);
+        alert("Could not save thresholds");
+    }
+}
+
+async function resetTemperatureThresholds() {
+    try{
+        const res = await fetch(resetTempThresholdUrl, {
+            method: "POST"
+        });
+
+        if(!res.ok) throw new Error("Failed to reset temperature thresholds");
+
+        const data = await res.json();
+        console.log("Reset temperature thresholds:", data);
+        alert("Temperature thresholds reset to default");
+        fetchThresholds();
+    } catch(error){
+        console.error("Error resetting temperature thresholds:", error);
+        alert("Could not reset thresholds");
     }
 }
 
