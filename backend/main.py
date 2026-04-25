@@ -37,7 +37,7 @@ TWILIO_TOKEN = os.getenv("TWILIO_TOKEN")
 TWILIO_PHONE = os.getenv("TWILIO_PHONE")
 MY_PHONE = os.getenv("MY_PHONE")
 
-ser = serial.Serial('/dev/cu.usbmodem101', 9600, timeout=1)
+ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
 time.sleep(2)
 
 app = FastAPI()

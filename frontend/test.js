@@ -7,8 +7,8 @@ function myFunction(){
     document.getElementById("air_level").innerHTML = 20.0;
 }
 
-const api_data_url = 'http://127.0.0.1:8000/api/data';
-const api_thres_url = 'http://127.0.0.1:8000/api/threshold';
+const api_data_url = '/api/data';
+const api_thres_url = '/api/threshold';
 
 // These arrays will hold the data coming from the POST endpoint and will be used to update each graph with the data in it
 const labels = [];
