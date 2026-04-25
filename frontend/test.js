@@ -6,13 +6,13 @@ function myFunction(){
     document.getElementById("co_level").innerHTML = 5.0;
     document.getElementById("air_level").innerHTML = 20.0;
 }
-
+//Uses relative paths so it works on any device without hardcoding an address
 const api_data_url = '/api/data';
 const api_thres_url = '/api/threshold';
 
 // These arrays will hold the data coming from the POST endpoint and will be used to update each graph with the data in it
 const labels = [];
-const tempData = [];
+const tempData = [];  
 const co2Data = [];
 const coData = [];
 const airData = [];
