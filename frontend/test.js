@@ -193,3 +193,44 @@ setInterval(fetchThresholds, 2000);
 // Run once immediately
 fetchData();
 fetchThresholds();
+
+//Check robot patrol status
+async function fetchRobotStatus(){
+    try{
+        const res = await fetch('/api/robot/status');
+        if (!res.ok) return;
+        const data = await res.json();
+
+        const section = document.getElementById('robot-section');
+        const locationE1 = document.getElementById('robot-location');
+        const blockedE1 = document.getElementById('robot-blocked');
+        const clearBtn =document.getElementById('clear-btn');
+
+           if (data.location !== 'idle') {
+            section.style.display = 'block';
+            locationEl.innerHTML = 'Location: ' + data.location;
+            blockedEl.style.display = data.blocked ? 'block' : 'none';
+            clearBtn.style.display = data.blocked ? 'inline-block' : 'none';
+        } else {
+            section.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Robot status error:', error);
+    }
+}
+
+async function clearPath() {
+    try {
+        await fetch('/api/robot/obstacle', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({blocked: false, location: 'cleared'})
+        });
+    } catch (error) {
+        console.error('Clear path error:', error);
+    }
+}
+
+setInterval(fetchRobotStatus, 2000);
+fetchRobotStatus();
+    
