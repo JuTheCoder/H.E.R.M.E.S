@@ -6,7 +6,7 @@ alerts if any of the four thresholds are exceeded.
 import time
 import os
 import requests
-import serial
+#import serial
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -49,8 +49,8 @@ TWILIO_PHONE = os.getenv("TWILIO_PHONE")
 MY_PHONE = os.getenv("MY_PHONE")
 
 #Serial port for the Pi (change to /dev/cu.usbmodem101 for Mac testing)
-ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
-time.sleep(2)
+#ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+#time.sleep(2)
 
 app = FastAPI()
 
@@ -150,13 +150,13 @@ async def receive_sensor_data(reading: SensorReading):
     is_dangerous = reading.co2 > 1000
 
     # Sends communication back to Arduino based on alert status
-    if ser.is_open:
-        if is_dangerous:
+   # if ser.is_open:
+   #     if is_dangerous:
             # Prompts system to beep and flash a red light
-            ser.write(b'1')
-        else:
+   #         ser.write(b'1')
+    #    else:
             # Nothing happens/beeping and flashing turn off
-            ser.write(b'0')
+      #      ser.write(b'0')
 
     current_time = time.time()
 
