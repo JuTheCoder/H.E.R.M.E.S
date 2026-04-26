@@ -9,11 +9,17 @@ Usage: python3 patrol.py
 Sim mode: python3 patrol.py --sim
 """
 
-import smbus
 import time
 import requests
 import sys
 import urllib3
+
+#smbus is only available on the Pi for I2C communication
+try:
+    import smbus
+except ImportError:
+    smbus = None
+
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
