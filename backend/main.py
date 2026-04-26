@@ -235,6 +235,12 @@ def robot_get_status():
 async def robot_location(data: dict):
     """Updates the robots current position on the route"""
     robot_status["location"] = data.get("location", "unknown")
+
+    if robot_status["blocked"]:
+        location = robot_status["location"]
+        alert_msg = f"H.E.R.M.E.S PATROL ALERT: Robot stopped!\nObstacle detected at:"
+        send_twilio_alert(alert_msg)
+        
     return {"status": "updated"}
 
 #Serves the frontend files (HTML, CSS, JS) straight from FastAPI
