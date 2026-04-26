@@ -88,16 +88,16 @@ class SensorReading(BaseModel):
     air: int
     temperature: float
 
-def send_twilio_sms(message_body: str):
+def send_twilio_alert(message_body: str):
     """
-    Sends an SMS using the Twilio's API, also includes debugging 
-    messages in the event of failure based on error codes.
+    Sends an WhatsApp message using the Twilio's API, Uses the same
+    endpoint as SMS but with the whatsapp: prefix on the numbers
     """
     url = f"https://api.twilio.com/2010-04-01/Accounts/{TWILIO_SID}/Messages.json"
 
     data = {
-        "From": TWILIO_PHONE,
-        "To": MY_PHONE,
+        "From": f"whatsapp:{TWILIO_PHONE}",
+        "To": f"whatsapp:{MY_PHONE}",
         "Body": message_body
     }
 
@@ -105,9 +105,9 @@ def send_twilio_sms(message_body: str):
         response = requests.post(url, data=data, auth=(TWILIO_SID, TWILIO_TOKEN), timeout=10)
 
         if 200 <= response.status_code < 300:
-            print("Twilio Alert Sent Successfully!")
+            print("WhatsApp Alert Sent Successfully!")
             return True
-        print(f"Twilio Alert Failed! Status: {response.status_code}")
+        print(f"WhatsApp Failed! Status: {response.status_code}")
 
         print(f"DEBUG INFO: {response.text}")
         return False
@@ -115,6 +115,7 @@ def send_twilio_sms(message_body: str):
     except requests.exceptions.RequestException as e:
         print(f"Network Error: {e}")
         return False
+    
 @app.post("/api/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     """
@@ -168,7 +169,7 @@ async def receive_sensor_data(reading: SensorReading):
                 AQ: {reading.air},\n Temp: {reading.temperature}
                 """
 
-            success = send_twilio_sms(alert_msg)
+            success = send_twilio_alert(alert_msg)
 
             if success:
                 LAST_ALERT_TIME = current_time
