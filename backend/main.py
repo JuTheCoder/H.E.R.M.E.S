@@ -8,13 +8,17 @@ import os
 import requests
 import serial
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from data import threshold, overall_threshold
 #Lets FastAPI serve our frontend files directly instead of needing Live Server
 from fastapi.staticfiles import StaticFiles 
 from fastapi.responses import FileResponse
+
+#Authentication imports for login and protected endpoints 
+from fastapi.security import OAuth2PasswordRequestForm
+from auth import create_access_token, verify_password, get_current_user, USERS
 
 # Stores latest reading
 latest_data = {
@@ -104,6 +108,20 @@ def send_twilio_sms(message_body: str):
     except requests.exceptions.RequestException as e:
         print(f"Network Error: {e}")
         return False
+@app.post("/api/login")
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    """
+    Authenticates the user and returns a JWT token
+    if the credentials are valid
+    """
+    user = USERS.get(form_data.username)
+    if not user or not verify_password(form_data.password, user["hashed_password"]):
+        raise HTTPException(status_code=401, detail= "Incorrect username or password")
+    
+    token = create_access_token(data={"sub": form_data.username})
+    return {"access_token": token, "token_type": "bearer"}
+
+
 
 @app.post("/api/sensor-data")
 async def receive_sensor_data(reading: SensorReading):
