@@ -221,9 +221,15 @@ def thold():
 # Robot patrol endpoints
 @app.post("/api/robot/obstacle")
 async def robot_obstacle(data: dict):
-    """Updated whether the robots path is blocked"""
-    robot_status["blocked"] = data.get("blocked", False )
+    """Updated whether the robots path is blocked and sends alert"""
+    robot_status["blocked"] = data.get("blocked", False)
     robot_status["location"] = data.get("location", "unknown")
+
+    if robot_status["blocked"]:
+        location = robot_status["location"]
+        alert_msg = f"H.E.R.M.E.S. PATROL ALERT: Robot stopped!\nObstacle detected at: {location}\nOpen the dashboard to clear the path."
+        send_twilio_alert(alert_msg)
+
     return {"status": "updated"}
 
 @app.get("/api/robot/status")
@@ -235,12 +241,6 @@ def robot_get_status():
 async def robot_location(data: dict):
     """Updates the robots current position on the route"""
     robot_status["location"] = data.get("location", "unknown")
-
-    if robot_status["blocked"]:
-        location = robot_status["location"]
-        alert_msg = f"H.E.R.M.E.S PATROL ALERT: Robot stopped!\nObstacle detected at:"
-        send_twilio_alert(alert_msg)
-        
     return {"status": "updated"}
 
 #Serves the frontend files (HTML, CSS, JS) straight from FastAPI
