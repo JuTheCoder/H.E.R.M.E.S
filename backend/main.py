@@ -28,6 +28,13 @@ latest_data = {
     "air": 0
 }
 
+#Tracks the robots current status and location
+robot_status = {
+
+    "blocked": False,
+    "location": "idle"
+}
+
 # Variables used to prevent alert spamming
 LAST_ALERT_TIME = 0
 COOLDOWN_SECONDS = 1800  # 30 Minutes
@@ -209,6 +216,25 @@ def thold():
         "air_thresh": air_thresh,
         "overall_thresh": overall_thresh
     }
+
+# Robot patrol endpoints
+@app.post("/api/robot/obstacle")
+async def robot_obstacle(data: dict):
+    """Updated whether the robots path is blocked"""
+    robot_status["blocked"] = data.get("blocked", False )
+    robot_status["location"] = data.get("location", "unknown")
+    return {"status": "updated"}
+
+@app.get("/api/robot/status")
+def robot_get_status():
+    """Returns the robots current status for the patrol script to check"""
+    return robot_status 
+
+@app.post("/api/robot/location")
+async def robot_location(data: dict):
+    """Updates the robots current position on the route"""
+    robot_status["location"] = data.get("location", "unknown")
+    return {"status": "updated"}
 
 #Serves the frontend files (HTML, CSS, JS) straight from FastAPI
 app.mount("/", StaticFiles(directory="../frontend", html=True), name ="frontend")
