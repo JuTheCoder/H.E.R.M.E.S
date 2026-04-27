@@ -22,6 +22,8 @@ def threshold(name, value):
             "moderate_high_max": 85
         })
 
+        print(settings)
+
         if(settings["safe_min"] <= value <= settings["safe_max"]):
             return "Safe"
         elif(settings["moderate_low_min"] <= value <= settings["moderate_low_max"]) or (settings["moderate_high_min"] <= value <= settings["moderate_high_max"]):
