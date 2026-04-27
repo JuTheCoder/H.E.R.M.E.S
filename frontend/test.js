@@ -6,13 +6,13 @@ function myFunction(){
     document.getElementById("co_level").innerHTML = 5.0;
     document.getElementById("air_level").innerHTML = 20.0;
 }
-//Uses relative paths so it works on any device without hardcoding an address
-const api_data_url = '/api/data';
-const api_thres_url = '/api/threshold';
+
+const api_data_url = 'http://127.0.0.1:8000/api/data';
+const api_thres_url = 'http://127.0.0.1:8000/api/threshold';
 
 // These arrays will hold the data coming from the POST endpoint and will be used to update each graph with the data in it
 const labels = [];
-const tempData = [];  
+const tempData = [];
 const co2Data = [];
 const coData = [];
 const airData = [];
@@ -193,44 +193,3 @@ setInterval(fetchThresholds, 2000);
 // Run once immediately
 fetchData();
 fetchThresholds();
-
-//Check robot patrol status
-async function fetchRobotStatus(){
-    try{
-        const res = await fetch('/api/robot/status');
-        if (!res.ok) return;
-        const data = await res.json();
-
-        const section = document.getElementById('robot-section');
-        const locationE1 = document.getElementById('robot-location');
-        const blockedE1 = document.getElementById('robot-blocked');
-        const clearBtn =document.getElementById('clear-btn');
-
-           if (data.location !== 'idle') {
-            section.style.display = 'block';
-            locationEl.innerHTML = 'Location: ' + data.location;
-            blockedEl.style.display = data.blocked ? 'block' : 'none';
-            clearBtn.style.display = data.blocked ? 'inline-block' : 'none';
-        } else {
-            section.style.display = 'none';
-        }
-    } catch (error) {
-        console.error('Robot status error:', error);
-    }
-}
-
-async function clearPath() {
-    try {
-        await fetch('/api/robot/obstacle', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({blocked: false, location: 'cleared'})
-        });
-    } catch (error) {
-        console.error('Clear path error:', error);
-    }
-}
-
-setInterval(fetchRobotStatus, 2000);
-fetchRobotStatus();
-    
