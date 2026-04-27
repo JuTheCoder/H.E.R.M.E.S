@@ -190,6 +190,7 @@ async function fetchThresholds() {
 
 async function saveTemperatureThresholds(){
 
+    // Checking if any of the input boxes are empty
     if(
         document.getElementById("safe_min").value === "" ||
         document.getElementById("safe_max").value === "" ||
@@ -202,6 +203,7 @@ async function saveTemperatureThresholds(){
         return;
     }
 
+    // Grabs the values from the frontend boxes, converts them into numbers, and then stores them in their corresponding object/variable
     const payload = {
         safe_min: Number(document.getElementById("safe_min").value),
         safe_max: Number(document.getElementById("safe_max").value),
@@ -211,6 +213,7 @@ async function saveTemperatureThresholds(){
         moderate_high_max: Number(document.getElementById("moderate_high_max").value)
     };
 
+    // Sends the new data from the user to the backend using the POST endpoint
     try{
         const res = await fetch(tempThresholdUrl, {
             method: "POST",
@@ -225,7 +228,7 @@ async function saveTemperatureThresholds(){
         const data = await res.json();
         console.log("Saved temperature thresholds:", data);
         alert("Temperature thresholds updated successfully");
-        fetchThresholds();
+        fetchThresholds();                                                      // Refreshing the thresholds
     } catch(error){
         console.error("Errpr saving temperature thresholds:", error);
         alert("Could not save thresholds");
