@@ -88,7 +88,7 @@ h1 {
     color: #374151;
 }
 
-.graph-container {
+.graphs-container {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
