@@ -4,6 +4,7 @@ data.py
 
 # This will hold the custom theshold values that the user wants
 custom_thresholds = {}
+print("Custom threshold: ", custom_thresholds)
 
 def threshold(name, value):
     """
@@ -11,7 +12,7 @@ def threshold(name, value):
     """
     if value is None:
         return "No Data"
-    
+
     if name == "temperature":
         settings = custom_thresholds.get("temperature", {
             "safe_min": 68,
@@ -21,20 +22,16 @@ def threshold(name, value):
             "moderate_high_min": 78,
             "moderate_high_max": 85
         })
+        print("Settings: ", settings)
 
-        if(settings["safe_min"] <= value <= settings["safe_max"]):
+        if settings["safe_min"] <= value <= settings["safe_max"]:
             return "Safe"
-        elif(settings["moderate_low_min"] <= value <= settings["moderate_low_max"]) or (settings["moderate_high_min"] <= value <= settings["moderate_high_max"]):
+        if(settings["moderate_low_min"] <= value <= settings["moderate_low_max"] or
+           settings["moderate_high_min"] <= value <= settings["moderate_high_max"]):
             return "Moderate"
-        else:   
-            return "Unsafe"
-        """if 68 <= value <= 77:
-            return "Safe"
-        if (60 <= value <= 67) or (78 <= value <= 85):
-            return "Moderate"
-        if 60 < value > 85:
-            return "Unsafe"""
-        
+
+        return "Unsafe"
+
     if name == "co2" :
         if 400 <= value <= 800:
             return "Safe"
@@ -102,7 +99,6 @@ def severity_score(label):
 
     return scores.get(label,-1)
 
-
 def overall_threshold(temp, co2, co, air):
     """
     Defines the overall quality of air given the threshold of 
@@ -119,8 +115,6 @@ def overall_threshold(temp, co2, co, air):
 
     for label in labels:
         score = severity_score(label)
-        # if score > max_score:
-        #     max_score = score
         max_score = max(max_score, score)
 
     if max_score == -1:
@@ -135,3 +129,4 @@ def overall_threshold(temp, co2, co, air):
         return "Unsafe"
     if max_score == 4:
         return "Dangerous"
+    return "None"

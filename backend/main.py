@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from data import threshold, overall_threshold
+from data import threshold, overall_threshold, custom_thresholds
 
 # Stores latest reading
 latest_data = {
@@ -17,8 +17,6 @@ latest_data = {
     "co": 0,
     "air": 0
 }
-
-custom_thresholds = {}
 
 # Variables used to prevent alert spamming
 last_alert_time = 0
@@ -50,6 +48,9 @@ app.add_middleware(
 
 # Format for the custom Temp thresholds
 class TempThresholds(BaseModel):
+    """
+    Configuration for user-defined temperature thresholds.
+    """
     safe_min: int
     safe_max: int
     moderate_low_min: int
@@ -193,6 +194,7 @@ def set_temperature_threshold(data: TempThresholds):
         "message": "Temperature thresholds updated",
         "new_values": custom_thresholds["temperature"]
     }
+print("Custom threshold", custom_thresholds)
 
 # POST endpoint that will reset the Temperature thresholds to its default settings/values
 @app.post("/api/reset-temperature-threshold")
