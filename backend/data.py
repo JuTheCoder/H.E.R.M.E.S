@@ -1,5 +1,8 @@
 """
-data.py
+data.py: handles the assignment of safety ratings for
+each sensor reading based on returned values, also
+assigns a safety rating to the overall quality by
+summing up the ratings of the individual readings.
 """
 
 # This will hold the custom theshold values that the user wants
@@ -8,7 +11,8 @@ print("Custom threshold: ", custom_thresholds)
 
 def threshold(name, value):
     """
-    Determines the threshold of each sensor reading by it's name and value
+    Determines the safety level of each sensor reading by assigning it
+    a safety level depending on the range of its returned numerical value;.
     """
     if value is None:
         return "No Data"
@@ -37,29 +41,29 @@ def threshold(name, value):
             return "Safe"
         if 801 <= value <= 1000:
             return "Moderate"
-        if 1001 <= value <= 2000:
-            return "Poor"
-        if 2001 <= value <= 5000:
+        if 1001 <= value <= 2500:
             return "Unsafe"
+        if 2501 <= value <= 5000:
+            return "Poor"
         if value > 5000:
             return "Dangerous"
         return "No Data"
     if name == "co":
-        if 0 <= value <= 5:
+        if 0 <= value <= 14:
             return "Safe"
-        if 6 <= value <= 9:
+        if 15 <= value <= 34:
             return "Moderate"
-        if 10 <= value <= 35:
+        if 35 <= value <= 75:
             return "Unsafe"
-        if 36 <= value <= 200:
+        if 76 <= value <= 149:
             return "Dangerous"
-        if value > 200:
+        if value > 150:
             return "Severe Danger"
         return "No Data"
     if name == "air":
-        if 0 <= value <= 50:
-            return "Good"
-        if 51 <= value <= 100:
+        if 0 <= value <= 150:
+            return "Safe"
+        if 151 <= value <= 400:
             return "Moderate"
         if 101 <= value <= 150:
             return "Unhealthy for sensitive groups"
@@ -79,18 +83,13 @@ def severity_score(label):
     """
     scores = {
         "No Data": -1,
-
-        "Good": 0,
+        #"Good": 0,
         "Safe": 0,
-
         "Moderate": 1,
-
         "Poor": 2,
-        "Unhealthy for sensitive groups": 2,
-
+        #"Unhealthy for sensitive groups": 2,
         "Unsafe": 3,
-        "Unhealthy": 3,
-
+        #"Unhealthy": 3,
         "Dangerous": 4,
         "Very Unhealthy": 4,
         "Hazardous": 4,
