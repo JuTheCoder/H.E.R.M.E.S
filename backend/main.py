@@ -1,17 +1,16 @@
 """
-main.py: Handles the structure for endpoints and sensor readings,
-continuously retrieves/stores sensor readings, and sends remote
-alerts if any of the four thresholds are exceeded.
+main.py: Configures the FastAPI server, initializes 
+serial hardware communication,and orchestrates API 
+endpoints for real-time sensor data ingestion and 
+threshold management.
 """
 import time
-import os
-import requests
 import serial
-from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 from data import threshold, overall_threshold, custom_thresholds
+from alert import handle_alert
+from schemas import SensorReading, Threshold, TempThresholds
 
 # Stores latest reading
 latest_data = {
@@ -20,19 +19,6 @@ latest_data = {
     "co": 0,
     "air": 0
 }
-
-# Variables used to prevent alert spamming
-LAST_ALERT_TIME = 0
-COOLDOWN_SECONDS = 1800  # 30 Minutes
-
-# Loads the env to utilize Twilio
-load_dotenv()
-
-# Twilio Configuration
-TWILIO_SID = os.getenv("TWILIO_SID")
-TWILIO_TOKEN = os.getenv("TWILIO_TOKEN")
-TWILIO_PHONE = os.getenv("TWILIO_PHONE")
-MY_PHONE = os.getenv("MY_PHONE")
 
 ser = serial.Serial('/dev/cu.usbmodem101', 9600, timeout=1)
 time.sleep(2)
@@ -52,67 +38,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Format for the custom Temp thresholds
-class TempThresholds(BaseModel):
-    """
-    Configuration for user-defined temperature thresholds.
-    """
-    safe_min: int
-    safe_max: int
-    moderate_low_min: int
-    moderate_low_max: int
-    moderate_high_min: int
-    moderate_high_max: int
-
-# Format for the threshold endpoint
-class Threshold(BaseModel):
-    """
-    Configuration for sensor reading thresholds.
-    """
-    temp_thresh: str
-    co2_thresh: str
-    co_thresh: str
-    air_thresh: str
-    overall_thresh: str
-
-# Format for the data endpoint
-class SensorReading(BaseModel):
-    """
-    Configuration for sensor readings.
-    """
-    co2: int
-    co: int
-    air: int
-    temperature: float
-
-def send_twilio_sms(message_body: str):
-    """
-    Sends an SMS using the Twilio's API, also includes debugging 
-    messages in the event of failure based on error codes.
-    """
-    url = f"https://api.twilio.com/2010-04-01/Accounts/{TWILIO_SID}/Messages.json"
-
-    data = {
-        "From": TWILIO_PHONE,
-        "To": MY_PHONE,
-        "Body": message_body
-    }
-
-    try:
-        response = requests.post(url, data=data, auth=(TWILIO_SID, TWILIO_TOKEN), timeout=10)
-
-        if 200 <= response.status_code < 300:
-            print("Twilio Alert Sent Successfully!")
-            return True
-        print(f"Twilio Alert Failed! Status: {response.status_code}")
-
-        print(f"DEBUG INFO: {response.text}")
-        return False
-
-    except requests.exceptions.RequestException as e:
-        print(f"Network Error: {e}")
-        return False
-
 @app.post("/api/sensor-data")
 async def receive_sensor_data(reading: SensorReading):
     """
@@ -120,7 +45,6 @@ async def receive_sensor_data(reading: SensorReading):
     checks if any levels are dangerous, and alerts the user
     if necessary.
     """
-    global LAST_ALERT_TIME
 
     # Updates latest data for the UI
     latest_data["co2"] = reading.co2
@@ -129,36 +53,13 @@ async def receive_sensor_data(reading: SensorReading):
     latest_data["temperature"] = reading.temperature
 
     # Checks if any of the returned values are higher than their threshold
-    is_dangerous = reading.co2 > 1000
+    is_dangerous = reading.co2 > 10000
 
     # Sends communication back to Arduino based on alert status
     if ser.is_open:
-        if is_dangerous:
-            # Prompts system to beep and flash a red light
-            ser.write(b'1')
-        else:
-            # Nothing happens/beeping and flashing turn off
-            ser.write(b'0')
+        ser.write(b'1' if is_dangerous else b'0')
 
-    current_time = time.time()
-
-    if is_dangerous:
-        # Check Cooldowns to prevent alert message spam
-        if (current_time - LAST_ALERT_TIME) > COOLDOWN_SECONDS:
-            alert_msg = f"""
-                H.E.R.M.E.S. ALERT: Dangerous Levels Detected!\n 
-                Current Readings: CO2: {reading.co2}ppm,\n CO: {reading.co}ppm,\n
-                AQ: {reading.air},\n Temp: {reading.temperature}
-                """
-
-            success = send_twilio_sms(alert_msg)
-
-            if success:
-                LAST_ALERT_TIME = current_time
-        else:
-            # Helpful for debugging to see why texts aren't being received
-            remaining = int(COOLDOWN_SECONDS - (current_time - LAST_ALERT_TIME))
-            print(f"Alert suppressed: Cooldown active for {remaining // 60} more minutes.")
+    handle_alert(is_dangerous, reading)
 
     return {"status": "data received"}
 
