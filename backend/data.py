@@ -49,14 +49,14 @@ def severity_score(label):
         #"Good": 0,
         "Safe": 0,
         "Moderate": 1,
-        "Poor": 2,
+        #"Poor": 2,
         #"Unhealthy for sensitive groups": 2,
-        "Unsafe": 3,
+        "Unsafe": 2,
         #"Unhealthy": 3,
-        "Dangerous": 4,
-        "Very Unhealthy": 4,
-        "Hazardous": 4,
-        "Severe Danger": 4
+        #"Dangerous": 4,
+        #"Very Unhealthy": 4,
+        #"Hazardous": 4,
+        #"Severe Danger": 4
     }
 
     return scores.get(label,-1)
@@ -86,9 +86,9 @@ def overall_threshold(temp, co2, co, air):
     if max_score == 1:
         return "Moderate"
     if max_score == 2:
-        return "Poor"
-    if max_score == 3:
         return "Unsafe"
-    if max_score == 4:
-        return "Dangerous"
+    #if max_score == 3:
+    #    return "Unsafe"
+    #if max_score == 4:
+      #  return "Dangerous"
     return "None"
