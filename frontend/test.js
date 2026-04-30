@@ -116,9 +116,7 @@ function applyColor(element, value){
 
     if(v.includes("safe")) element.classList.add("safe");
     else if (v.includes("moderate")) element.classList.add("moderate");
-    else if (v.includes("poor")) element.classList.add("poor");
     else if (v.includes("unsafe")) element.classList.add("unsafe");
-    else if (v.includes("danger")) element.classList.add("dangerous");
     else element.classList.add("waiting");
 }
 

@@ -57,28 +57,17 @@ h1 {
     margin: 0 auto; 
 }
 
-
 .safe {
     background-color: #d1fae5;
     color: #92400e;
 }
 
 .moderate {
-    background-color: #fef3c7;
-    color:#92400e;
-}
-
-.poor {
     background-color: #fde68a;
     color: #92400e;
 }
 
 .unsafe {
-    background-color: #fecaca;
-    color: #7f1d1d;
-}
-
-.dangerous {
     background-color: #ef4444;
     color: white;
 }
