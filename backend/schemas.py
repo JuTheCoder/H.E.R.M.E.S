@@ -25,6 +25,39 @@ class TempThresholds(BaseModel):
     moderate_high_min: int
     moderate_high_max: int
 
+class CO2Thresholds(BaseModel):
+    """
+    Configuration for user-defined co2 thresholds.
+    """
+    safe_min: int
+    safe_max: int
+    moderate_low_min: int
+    moderate_low_max: int
+    moderate_high_min: int
+    moderate_high_max: int
+
+class COThresholds(BaseModel):
+    """
+    Configuration for user-defined co thresholds.
+    """
+    safe_min: int
+    safe_max: int
+    moderate_low_min: int
+    moderate_low_max: int
+    moderate_high_min: int
+    moderate_high_max: int
+
+class AirThresholds(BaseModel):
+    """
+    Configuration for user-defined aq thresholds.
+    """
+    safe_min: int
+    safe_max: int
+    moderate_low_min: int
+    moderate_low_max: int
+    moderate_high_min: int
+    moderate_high_max: int
+
 class Threshold(BaseModel):
     """
     Configuration for sensor reading thresholds.

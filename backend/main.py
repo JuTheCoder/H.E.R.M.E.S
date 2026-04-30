@@ -8,9 +8,10 @@ import time
 import serial
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from data import threshold, overall_threshold, custom_thresholds
+import data
+from data import threshold, overall_threshold
 from alert import handle_alert
-from schemas import SensorReading, Threshold, TempThresholds
+from schemas import SensorReading, Threshold, TempThresholds, CO2Thresholds, COThresholds, AirThresholds
 
 # Stores latest reading
 latest_data = {
@@ -103,18 +104,50 @@ def thold():
 
 # POST endpoint that will allow the frontend to send the custom thresholds to our backend
 @app.post("/api/temperature-threshold")
-def set_temperature_threshold(data: TempThresholds):
-    custom_thresholds["temperature"] = data.model_dump()
-    return {
-        "message": "Temperature thresholds updated",
-        "new_values": custom_thresholds["temperature"]
-    }
-print("Custom threshold", custom_thresholds)
+def set_temperature_threshold(data_in: TempThresholds):
+    data.custom_thresholds["temperature"] = data_in.model_dump()
+    return {"message": "Temperature thresholds updated",}
 
 # POST endpoint that will reset the Temperature thresholds to its default settings/values
 @app.post("/api/reset-temperature-threshold")
 def reset_temperature_threshold():
-    if "temperature" in custom_thresholds:
-        del custom_thresholds["temperature"]
+    if "temperature" in data.custom_thresholds:
+        del data.custom_thresholds["temperature"]
 
     return {"message": "Temperature thresholds reset to default"}
+
+@app.post("/api/co2-threshold")
+def set_co2_threshold(data_in: CO2Thresholds):
+    data.custom_thresholds["co2"] = data_in.model_dump()
+    return {"message": "CO2 thresholds updated",}
+
+@app.post("/api/reset-co2-threshold")
+def reset_co2_threshold():
+    if "co2" in data.custom_thresholds:
+        del data.custom_thresholds["co2"]
+
+    return {"message": "CO2 thresholds reset to default"}
+
+@app.post("/api/co-threshold")
+def set_co_threshold(data_in: COThresholds):
+    data.custom_thresholds["co"] = data_in.model_dump()
+    return {"message": "CO thresholds updated",}
+
+@app.post("/api/reset-co-threshold")
+def reset_co_threshold():
+    if "co" in data.custom_thresholds:
+        del data.custom_thresholds["co"]
+
+    return {"message": "CO thresholds reset to default"}
+
+@app.post("/api/air-threshold")
+def set_air_threshold(data_in: AirThresholds):
+    data.custom_thresholds["air"] = data_in.model_dump()
+    return {"message": "AQ thresholds updated",}
+
+@app.post("/api/reset-air-threshold")
+def reset_air_threshold():
+    if "air" in data.custom_thresholds:
+        del data.custom_thresholds["air"]
+
+    return {"message": "AQ thresholds reset to default"}

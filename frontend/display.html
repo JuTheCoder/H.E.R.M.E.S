@@ -1,110 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>
-            H.E.R.M.E.S. Air Status
-        </title>
-        <link rel="stylesheet" type="text/css" href="styles.css">
-        <script src = "https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src = "test.js" defer></script>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>H.E.R.M.E.S. Air Status</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="test.js" defer></script>
+</head>
 <body>
     <div class="container">
-    <h1>
-        H.E.R.M.E.S. Air Data Display
-    </h1>
-    <p class="subtitle">Live enviornmental sensor readings</p>
+        <h1>H.E.R.M.E.S. Air Data Display</h1>
+        <p class="subtitle">Live environmental sensor readings</p>
 
-    <div class="status-box">
-        <h2>Overall Quality</h2>
-        <span id="overall_threshold" class="badge">Waiting</span>
-    </div>
-    <table>
-        <thead>
-            <tr>
-            <th>Air Characteristics</th>
-            <th>Measurement</th>
-            <th>Levels</th>
-            <th>Threshold</th>
-        </tr>
-        </thead>
-        <tbody>
-            <tr>
-            <th>Temperature</th>
-            <th>&deg;F</th>
-            <th id= "temperature_level">0.0</th>
-            <th id= "temp_threshold" class="badge">Waiting</th>
-        </tr>
-        <tr>
-            <th>CO2</th>
-            <th>PPM</th>
-            <th id= "co2_level">0.0</th>
-            <th id= "co2_threshold" class="badge">Waiting</th>
-        </tr>
-        <tr>
-            <th>CO</th>
-            <th>PPM</th>
-            <th id= "co_level">0.0</th>
-            <th id= "co_threshold" class="badge">Waiting</th>
-        </tr>
-        <tr>
-            <th>Air Quality</th>
-            <th>%</th>
-            <th id= "air_level">0.0</th>
-            <th id= "air_threshold" class="badge">Waiting</th>
-        </tr>
-        </tbody> 
-    </table>
-        <div class="graphs-container">
-            <div class="chart-box">
-                <h2>Temperature</h2>
-                <canvas id="tempChart"></canvas>
-            </div>
-
-            <div class="chart-box">
-                <h2>CO2</h2>
-                <canvas id="co2Chart"></canvas>
-            </div>
-
-            <div class="chart-box">
-                <h2>CO</h2>
-                <canvas id="coChart"></canvas>
-            </div>
-
-            <div class="chart-box">
-                <h2>Air Quality</h2>
-                <canvas id="airChart"></canvas>
-            </div>
+        <div class="status-box">
+            <h2>Overall Quality</h2>
+            <span id="overall_threshold" class="badge">Waiting</span>
         </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Air Characteristics</th>
+                    <th>Measurement</th>
+                    <th>Levels</th>
+                    <th>Threshold</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>Temperature</th>
+                    <th>&deg;F</th>
+                    <th id="temperature_level">0.0</th>
+                    <th id="temp_threshold" class="badge">Waiting</th>
+                </tr>
+                <tr>
+                    <th>CO2</th>
+                    <th>PPM</th>
+                    <th id="co2_level">0.0</th>
+                    <th id="co2_threshold" class="badge">Waiting</th>
+                </tr>
+                <tr>
+                    <th>CO</th>
+                    <th>PPM</th>
+                    <th id="co_level">0.0</th>
+                    <th id="co_threshold" class="badge">Waiting</th>
+                </tr>
+                <tr>
+                    <th>Air Quality</th>
+                    <th>%</th>
+                    <th id="air_level">0.0</th>
+                    <th id="air_threshold" class="badge">Waiting</th>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="graphs-container">
+            <div class="chart-box"><h2>Temperature</h2><canvas id="tempChart"></canvas></div>
+            <div class="chart-box"><h2>CO2</h2><canvas id="co2Chart"></canvas></div>
+            <div class="chart-box"><h2>CO</h2><canvas id="coChart"></canvas></div>
+            <div class="chart-box"><h2>Air Quality</h2><canvas id="airChart"></canvas></div>
+        </div>
+
         <div class="threshold-settings">
             <h2>Temperature Threshold Settings</h2>
-
-            <label for=""safe_min>Safe Min</label>
-            <input type="number" id="safe_min" placeholder="68">
-
-            <label for="safe_max">Safe Max</label>
-            <input type="number" id="safe_max" placeholder="77">
-
-            <label for="moderate_low_min">Moderate Low Min</label>
-            <input type="number" id="moderate_low_min" placeholder="60">
-
-            <label for="moderate_low_max">Moderate Low Max</label>
-            <input type="number" id="moderate_low_max" placeholder="67">
-
-            <label for="moderate_high_min">Moderate High Min</label>
-            <input type="number" id="moderate_high_min" placeholder="78">
-
-            <label for="moderate_high_max">Moderate High Max</label>
-            <input type="number" id="moderate_high_max" placeholder="85">
-
+            <label>Safe Min</label><input type="number" id="temp_safe_min" placeholder="68">
+            <label>Safe Max</label><input type="number" id="temp_safe_max" placeholder="77">
+            <label>Mod Low Min</label><input type="number" id="temp_moderate_low_min" placeholder="60">
+            <label>Mod Low Max</label><input type="number" id="temp_moderate_low_max" placeholder="67">
+            <label>Mod High Min</label><input type="number" id="temp_moderate_high_min" placeholder="78">
+            <label>Mod High Max</label><input type="number" id="temp_moderate_high_max" placeholder="85">
             <button onclick="saveTemperatureThresholds()">Save Thresholds</button>
             <button onclick="resetTemperatureThresholds()">Reset to Default</button>
-
-
         </div>
 
+        <div class="threshold-settings">
+            <h2>CO2 Threshold Settings</h2>
+            <label>Safe Min</label><input type="number" id="co2_safe_min" placeholder="400">
+            <label>Safe Max</label><input type="number" id="co2_safe_max" placeholder="800">
+            <label>Mod Low Min</label><input type="number" id="co2_moderate_low_min" placeholder="300">
+            <label>Mod Low Max</label><input type="number" id="co2_moderate_low_max" placeholder="399">
+            <label>Mod High Min</label><input type="number" id="co2_moderate_high_min" placeholder="801">
+            <label>Mod High Max</label><input type="number" id="co2_moderate_high_max" placeholder="1000">
+            <button onclick="saveCO2Thresholds()">Save Thresholds</button>
+            <button onclick="resetCO2Thresholds()">Reset to Default</button>
+        </div>
+
+        <div class="threshold-settings">
+            <h2>CO Threshold Settings</h2>
+            <label>Safe Min</label><input type="number" id="co_safe_min" placeholder="0">
+            <label>Safe Max</label><input type="number" id="co_safe_max" placeholder="14">
+            <label>Mod Low Min</label><input type="number" id="co_moderate_low_min" placeholder="0">
+            <label>Mod Low Max</label><input type="number" id="co_moderate_low_max" placeholder="0">
+            <label>Mod High Min</label><input type="number" id="co_moderate_high_min" placeholder="15">
+            <label>Mod High Max</label><input type="number" id="co_moderate_high_max" placeholder="34">
+            <button onclick="saveCOThresholds()">Save Thresholds</button>
+            <button onclick="resetCOThresholds()">Reset to Default</button>
+        </div>
+
+        <div class="threshold-settings">
+            <h2>Air Quality Threshold Settings</h2>
+            <label>Safe Min</label><input type="number" id="air_safe_min" placeholder="0">
+            <label>Safe Max</label><input type="number" id="air_safe_max" placeholder="150">
+            <label>Mod Low Min</label><input type="number" id="air_moderate_low_min" placeholder="0">
+            <label>Mod Low Max</label><input type="number" id="air_moderate_low_max" placeholder="0">
+            <label>Mod High Min</label><input type="number" id="air_moderate_high_min" placeholder="151">
+            <label>Mod High Max</label><input type="number" id="air_moderate_high_max" placeholder="400">
+            <button onclick="saveAirThresholds()">Save Thresholds</button>
+            <button onclick="resetAirThresholds()">Reset to Default</button>
+        </div>
     </div>
 </body>  
 </html>
