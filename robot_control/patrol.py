@@ -112,6 +112,7 @@ def get_distance():
         time.sleep(0.05)
         b2 = bus.read_byte(GOPIGO_ADDR)
         dist = b1 * 256 + b2
+        print(f"    Distance: {dist}cm")
         return dist
     except IOError:
         time.sleep(0.1)
@@ -219,7 +220,7 @@ def update_location(location):
 
 def run_patrol(sim_mode):
     """
-    Patrol loop: go forward ~2 feet, turn around, repeat.
+    Patrol loop: go forward about 2 feet, turn around, repeat.
     Keeps going until stopped from dashboard or ctrl+c.
     """
     print("\n--- Starting Patrol ---\n")
