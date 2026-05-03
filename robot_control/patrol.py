@@ -134,7 +134,7 @@ def move_with_obstacle_check(direction_func, duration):
 
         # Quick pause to read sensor
         motor_stop()
-        time.sleep(0.05)
+        time.sleep(0.3)
 
         dist = get_distance()
         if 0 < dist < OBSTACLE_THRESHOLD:
