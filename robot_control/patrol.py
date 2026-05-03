@@ -112,7 +112,6 @@ def get_distance():
         time.sleep(0.05)
         b2 = bus.read_byte(GOPIGO_ADDR)
         dist = b1 * 256 + b2
-        print(f"    Distance: {dist}cm")
         return dist
     except IOError:
         time.sleep(0.1)
