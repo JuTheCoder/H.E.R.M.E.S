@@ -57,14 +57,19 @@
         </tr>
         </tbody> 
     </table>
-    <div class="status-box" id="robot-section" style="display:none;">
+    <div class="status-box" id="robot-section">
        <h2>Robot Patrol</h2>
        <p id="robot-location">Location: idle</p>
-       <p id="robot-blocked" style ="color:red; font-weight:bold;">PATH BLOCKED</p>
-       <button id="clear-btn" onclick="clearPath()" style ="padding:10px 20px; background:
-        #2ecc71; color:white; border:none; border-radius:5px; cursor:pointer; font-size:16px;"></button>"
+       <p id="robot-blocked" style="color:red; font-weight:bold; display:none;">PATH BLOCKED</p>
+       <button id="start-btn" onclick="startPatrol()" style="padding:10px 20px; background:#2ecc71; color:white; border:none; border-radius:5px; cursor:pointer; font-size:16px;">
+           Start Patrol
+       </button>
+       <button id="stop-btn" onclick="stopPatrol()" style="padding:10px 20px; background:#ef4444; color:white; border:none; border-radius:5px; cursor:pointer; font-size:16px; display:none;">
+           Stop Patrol
+       </button>
+       <button id="clear-btn" onclick="clearPath()" style="padding:10px 20px; background:#f59e0b; color:white; border:none; border-radius:5px; cursor:pointer; font-size:16px; display:none;">
            Clear Path
-      </button>
+       </button>
     </div>
         <div class="graphs-container">
             <div class="chart-box">
@@ -87,6 +92,33 @@
                 <canvas id="airChart"></canvas>
             </div>
         </div>
+        <div class="threshold-settings">
+            <h2>Temperature Threshold Settings</h2>
+
+            <label for="safe_min">Safe Min</label>
+            <input type="number" id="safe_min" placeholder="68">
+
+            <label for="safe_max">Safe Max</label>
+            <input type="number" id="safe_max" placeholder="77">
+
+            <label for="moderate_low_min">Moderate Low Min</label>
+            <input type="number" id="moderate_low_min" placeholder="60">
+
+            <label for="moderate_low_max">Moderate Low Max</label>
+            <input type="number" id="moderate_low_max" placeholder="67">
+
+            <label for="moderate_high_min">Moderate High Min</label>
+            <input type="number" id="moderate_high_min" placeholder="78">
+
+            <label for="moderate_high_max">Moderate High Max</label>
+            <input type="number" id="moderate_high_max" placeholder="85">
+
+            <button onclick="saveTemperatureThresholds()">Save Thresholds</button>
+            <button onclick="resetTemperatureThresholds()">Reset to Default</button>
+
+
+        </div>
+
     </div>
 </body>  
 </html>

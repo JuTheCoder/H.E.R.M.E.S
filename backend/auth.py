@@ -23,8 +23,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
 
 #Hardcoded users for now - in production you'd use a database
 USERS = {
-    "admin": {
-        "username": "admin",
+    "user": {
+        "username": "user",
         "hashed_password": pwd_context.hash("hermes2026")
     }
 }

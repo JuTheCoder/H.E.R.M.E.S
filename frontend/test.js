@@ -9,10 +9,12 @@ function myFunction(){
 //Uses relative paths so it works on any device without hardcoding an address
 const api_data_url = '/api/data';
 const api_thres_url = '/api/threshold';
+const tempThresholdUrl = '/api/temperature-threshold';
+const resetTempThresholdUrl = '/api/reset-temperature-threshold';
 
 // These arrays will hold the data coming from the POST endpoint and will be used to update each graph with the data in it
 const labels = [];
-const tempData = [];  
+const tempData = [];
 const co2Data = [];
 const coData = [];
 const airData = [];
@@ -35,7 +37,7 @@ const tempChart = new Chart(document.getElementById("tempChart"), {
     }
 });
 
-// Creates and displays the CO2 data captured by our POST endpoint 
+// Creates and displays the CO2 data captured by our POST endpoint
 const co2Chart = new Chart(document.getElementById("co2Chart"), {
     type: "line",
     data: {
@@ -53,7 +55,7 @@ const co2Chart = new Chart(document.getElementById("co2Chart"), {
     }
 });
 
-// Creates and displays the CO data captured by our POST endpoint 
+// Creates and displays the CO data captured by our POST endpoint
 const coChart = new Chart(document.getElementById("coChart"), {
     type: "line",
     data: {
@@ -71,7 +73,7 @@ const coChart = new Chart(document.getElementById("coChart"), {
     }
 });
 
-// Creates and displays the air quality data captured by our POST endpoint 
+// Creates and displays the air quality data captured by our POST endpoint
 const airChart = new Chart(document.getElementById("airChart"), {
     type: "line",
     data: {
@@ -123,10 +125,10 @@ async function fetchData() {
         document.getElementById("temperature_level").innerHTML = data.temperature;
         document.getElementById("co2_level").innerHTML = data.co2;
         document.getElementById("co_level").innerHTML = data.co;
-        document.getElementById("air_level").innerHTML = data.air; 
+        document.getElementById("air_level").innerHTML = data.air;
 
         const now = new Date().toLocaleTimeString();
-        
+
         labels.push(now);
         tempData.push(data.temperature);
         co2Data.push(data.co2);
@@ -186,6 +188,71 @@ async function fetchThresholds() {
     }
 }
 
+async function saveTemperatureThresholds(){
+
+    // Checking if any of the input boxes are empty
+    if(
+        document.getElementById("safe_min").value === "" ||
+        document.getElementById("safe_max").value === "" ||
+        document.getElementById("moderate_low_min").value === "" ||
+        document.getElementById("moderate_low_max").value === "" ||
+        document.getElementById("moderate_high_min").value === "" ||
+        document.getElementById("moderate_high_max").value === ""
+    ) {
+        alert("Please fill in all threshold fields");
+        return;
+    }
+
+    // Grabs the values from the frontend boxes, converts them into numbers, and then stores them in their corresponding object/variable
+    const payload = {
+        safe_min: Number(document.getElementById("safe_min").value),
+        safe_max: Number(document.getElementById("safe_max").value),
+        moderate_low_min: Number(document.getElementById("moderate_low_min").value),
+        moderate_low_max: Number(document.getElementById("moderate_low_max").value),
+        moderate_high_min: Number(document.getElementById("moderate_high_min").value),
+        moderate_high_max: Number(document.getElementById("moderate_high_max").value)
+    };
+
+    // Sends the new data from the user to the backend using the POST endpoint
+    try{
+        const res = await fetch(tempThresholdUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if(!res.ok) throw new Error("Failed to save temperature thresholds");
+
+        const data = await res.json();
+        console.log("Saved temperature thresholds:", data);
+        alert("Temperature thresholds updated successfully");
+        fetchThresholds();                                                      // Refreshing the thresholds
+    } catch(error){
+        console.error("Errpr saving temperature thresholds:", error);
+        alert("Could not save thresholds");
+    }
+}
+
+async function resetTemperatureThresholds() {
+    try{
+        const res = await fetch(resetTempThresholdUrl, {
+            method: "POST"
+        });
+
+        if(!res.ok) throw new Error("Failed to reset temperature thresholds");
+
+        const data = await res.json();
+        console.log("Reset temperature thresholds:", data);
+        alert("Temperature thresholds reset to default");
+        fetchThresholds();
+    } catch(error){
+        console.error("Error resetting temperature thresholds:", error);
+        alert("Could not reset thresholds");
+    }
+}
+
 // Refresh every 2 seconds
 setInterval(fetchData, 2000);
 setInterval(fetchThresholds, 2000);
@@ -202,9 +269,9 @@ async function fetchRobotStatus(){
         const data = await res.json();
 
         const section = document.getElementById('robot-section');
-        const locationE1 = document.getElementById('robot-location');
-        const blockedE1 = document.getElementById('robot-blocked');
-        const clearBtn =document.getElementById('clear-btn');
+        const locationEl = document.getElementById('robot-location');
+        const blockedEl = document.getElementById('robot-blocked');
+        const clearBtn = document.getElementById('clear-btn');
 
            if (data.location !== 'idle') {
             section.style.display = 'block';
@@ -233,4 +300,3 @@ async function clearPath() {
 
 setInterval(fetchRobotStatus, 2000);
 fetchRobotStatus();
-    

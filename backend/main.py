@@ -11,12 +11,12 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from data import threshold, overall_threshold
+from data import threshold, overall_threshold, custom_thresholds
 #Lets FastAPI serve our frontend files directly instead of needing Live Server
-from fastapi.staticfiles import StaticFiles 
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
-#Authentication imports for login and protected endpoints 
+#Authentication imports for login and protected endpoints
 from fastapi.security import OAuth2PasswordRequestForm
 from auth import create_access_token, verify_password, get_current_user, USERS
 
@@ -30,9 +30,9 @@ latest_data = {
 
 #Tracks the robots current status and location
 robot_status = {
-
     "blocked": False,
-    "location": "idle"
+    "location": "idle",
+    "running": False
 }
 
 # Variables used to prevent alert spamming
@@ -66,6 +66,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Format for the custom Temp thresholds
+class TempThresholds(BaseModel):
+    safe_min: int
+    safe_max: int
+    moderate_low_min: int
+    moderate_low_max: int
+    moderate_high_min: int
+    moderate_high_max: int
 
 # Format for the threshold endpoint
 class Threshold(BaseModel):
@@ -115,7 +124,7 @@ def send_twilio_alert(message_body: str):
     except requests.exceptions.RequestException as e:
         print(f"Network Error: {e}")
         return False
-    
+
 @app.post("/api/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     """
@@ -125,7 +134,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = USERS.get(form_data.username)
     if not user or not verify_password(form_data.password, user["hashed_password"]):
         raise HTTPException(status_code=401, detail= "Incorrect username or password")
-    
+
     token = create_access_token(data={"sub": form_data.username})
     return {"access_token": token, "token_type": "bearer"}
 
@@ -164,7 +173,7 @@ async def receive_sensor_data(reading: SensorReading):
         # Check Cooldowns to prevent alert message spam
         if (current_time - LAST_ALERT_TIME) > COOLDOWN_SECONDS:
             alert_msg = f"""
-                H.E.R.M.E.S. ALERT: Dangerous Levels Detected!\n 
+                H.E.R.M.E.S. ALERT: Dangerous Levels Detected!\n
                 Current Readings: CO2: {reading.co2}ppm,\n CO: {reading.co}ppm,\n
                 AQ: {reading.air},\n Temp: {reading.temperature}
                 """
@@ -235,7 +244,7 @@ async def robot_obstacle(data: dict):
 @app.get("/api/robot/status")
 def robot_get_status():
     """Returns the robots current status for the patrol script to check"""
-    return robot_status 
+    return robot_status
 
 @app.post("/api/robot/location")
 async def robot_location(data: dict):
@@ -243,7 +252,35 @@ async def robot_location(data: dict):
     robot_status["location"] = data.get("location", "unknown")
     return {"status": "updated"}
 
+@app.post("/api/robot/start")
+async def robot_start():
+    """Starts the robot patrol from the dashboard"""
+    robot_status["running"] = True
+    robot_status["location"] = "starting"
+    return {"status": "started"}
+
+@app.post("/api/robot/stop")
+async def robot_stop():
+    """Stops the robot patrol from the dashboard"""
+    robot_status["running"] = False
+    return {"status": "stopped"}
+
+# POST endpoint that will allow the frontend to send the custom thresholds to our backend
+@app.post("/api/temperature-threshold")
+def set_temperature_threshold(data: TempThresholds):
+    custom_thresholds["temperature"] = data.model_dump()
+    return {
+        "message": "Temperature thresholds updated",
+        "new_values": custom_thresholds["temperature"]
+    }
+
+# POST endpoint that will reset the Temperature thresholds to its default settings/values
+@app.post("/api/reset-temperature-threshold")
+def reset_temperature_threshold():
+    if "temperature" in custom_thresholds:
+        del custom_thresholds["temperature"]
+
+    return {"message": "Temperature thresholds reset to default"}
+
 #Serves the frontend files (HTML, CSS, JS) straight from FastAPI
 app.mount("/", StaticFiles(directory="../frontend", html=True), name ="frontend")
-
-
