@@ -107,7 +107,7 @@ def get_distance():
     """Read the ultrasonic sensor to see how far the nearest object is."""
     try:
         bus.write_i2c_block_data(GOPIGO_ADDR, CMD_ULTRASONIC, [15, 0, 0])
-        time.sleep(0.2)
+        time.sleep(0.5)
         b1 = bus.read_byte(GOPIGO_ADDR)
         time.sleep(0.05)
         b2 = bus.read_byte(GOPIGO_ADDR)
