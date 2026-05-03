@@ -8,6 +8,26 @@
         </title>
         <link rel="stylesheet" type="text/css" href="styles.css">
         <script src = "https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            // If no token go back to login
+            if (!localStorage.getItem("token")) {
+                window.location.href = "/";
+            }
+
+            // Logout after 10 minutes of no activity
+            let inactivityTimer;
+            function resetTimer() {
+                clearTimeout(inactivityTimer);
+                inactivityTimer = setTimeout(function() {
+                    localStorage.removeItem("token");
+                    window.location.href = "/";
+                }, 600000);
+            }
+            document.addEventListener("mousemove", resetTimer);
+            document.addEventListener("keypress", resetTimer);
+            document.addEventListener("click", resetTimer);
+            resetTimer();
+        </script>
         <script src = "test.js" defer></script>
     </head>
 <body>
@@ -16,6 +36,7 @@
         H.E.R.M.E.S. Air Data Display
     </h1>
     <p class="subtitle">Live enviornmental sensor readings</p>
+    <button onclick="localStorage.removeItem('token'); window.location.href='/'" style="position:absolute; top:20px; right:30px; padding:8px 16px; background:#ef4444; color:white; border:none; border-radius:6px; cursor:pointer;">Logout</button>
 
     <div class="status-box">
         <h2>Overall Quality</h2>
@@ -115,8 +136,6 @@
 
             <button onclick="saveTemperatureThresholds()">Save Thresholds</button>
             <button onclick="resetTemperatureThresholds()">Reset to Default</button>
-
-
         </div>
 
     </div>
