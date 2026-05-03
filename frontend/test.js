@@ -261,28 +261,52 @@ setInterval(fetchThresholds, 2000);
 fetchData();
 fetchThresholds();
 
-//Check robot patrol status
+//Check robot patrol status and show the right buttons
 async function fetchRobotStatus(){
     try{
         const res = await fetch('/api/robot/status');
         if (!res.ok) return;
         const data = await res.json();
 
-        const section = document.getElementById('robot-section');
         const locationEl = document.getElementById('robot-location');
         const blockedEl = document.getElementById('robot-blocked');
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
         const clearBtn = document.getElementById('clear-btn');
 
-           if (data.location !== 'idle') {
-            section.style.display = 'block';
-            locationEl.innerHTML = 'Location: ' + data.location;
-            blockedEl.style.display = data.blocked ? 'block' : 'none';
-            clearBtn.style.display = data.blocked ? 'inline-block' : 'none';
+        locationEl.innerHTML = 'Location: ' + data.location;
+
+        // Show start or stop depending on if patrol is running
+        if (data.running) {
+            startBtn.style.display = 'none';
+            stopBtn.style.display = 'inline-block';
         } else {
-            section.style.display = 'none';
+            startBtn.style.display = 'inline-block';
+            stopBtn.style.display = 'none';
         }
+
+        // Only show blocked message and clear button when path is blocked
+        blockedEl.style.display = data.blocked ? 'block' : 'none';
+        clearBtn.style.display = data.blocked ? 'inline-block' : 'none';
+
     } catch (error) {
         console.error('Robot status error:', error);
+    }
+}
+
+async function startPatrol() {
+    try {
+        await fetch('/api/robot/start', { method: 'POST' });
+    } catch (error) {
+        console.error('Start error:', error);
+    }
+}
+
+async function stopPatrol() {
+    try {
+        await fetch('/api/robot/stop', { method: 'POST' });
+    } catch (error) {
+        console.error('Stop error:', error);
     }
 }
 
