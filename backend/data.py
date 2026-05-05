@@ -16,60 +16,30 @@ def threshold(name, value):
     if value is None:
         return "No Data"
 
-    if name == "temperature":
-        settings = custom_thresholds.get("temperature", {
-            "safe_min": 68,
-            "safe_max": 77,
-            "moderate_low_min": 60,
-            "moderate_low_max": 67,
-            "moderate_high_min": 78,
-            "moderate_high_max": 85
-        })
+    defaults = {
+        "temperature": {"safe_min": 68, "safe_max": 77, "moderate_low_min": 60,
+                        "moderate_low_max": 67, "moderate_high_min": 78, "moderate_high_max": 85},
+        "co2": {"safe_min": 400, "safe_max": 800, "moderate_low_min": 300,
+                "moderate_low_max": 399, "moderate_high_min": 801, "moderate_high_max": 1000},
+        "co": {"safe_min": 0, "safe_max": 14, "moderate_low_min": 0,
+               "moderate_low_max": 0, "moderate_high_min": 15, "moderate_high_max": 34},
+        "air": {"safe_min": 0, "safe_max": 150, "moderate_low_min": 0,
+                "moderate_low_max": 0, "moderate_high_min": 151, "moderate_high_max": 400}
+    }
 
-        if(settings["safe_min"] <= value <= settings["safe_max"]):
-            return "Safe"
-        elif(settings["moderate_low_min"] <= value <= settings["moderate_low_max"]) or (settings["moderate_high_min"] <= value <= settings["moderate_high_max"]):
-            return "Moderate"
-        else:
-            return "Unsafe"
+    # Get user settings OR use the defaults defined above
+    settings = custom_thresholds.get(name, defaults.get(name))
 
-    if name == "co2":
-        if 400 <= value <= 800:
-            return "Safe"
-        if 801 <= value <= 1000:
-            return "Moderate"
-        if 1001 <= value <= 2500:
-            return "Unsafe"
-        if 2501 <= value <= 5000:
-            return "Poor"
-        if value > 5000:
-            return "Dangerous"
+    if settings is None:
         return "No Data"
-    if name == "co":
-        if 0 <= value <= 14:
-            return "Safe"
-        if 15 <= value <= 34:
-            return "Moderate"
-        if 35 <= value <= 75:
-            return "Unsafe"
-        if 76 <= value <= 149:
-            return "Dangerous"
-        if value > 150:
-            return "Severe Danger"
-        return "No Data"
-    if name == "air":
-        if 0 <= value <= 150:
-            return "Safe"
-        if 151 <= value <= 400:
-            return "Moderate"
-        if 401 <= value <= 1000:
-            return "Unsafe"
-        if 1001 <= value <= 5000:
-            return "Dangerous"
-        if value > 5000:
-            return "Severe Danger"
-        return "No Data"
-    return "No Data"
+
+    if settings["safe_min"] <= value <= settings["safe_max"]:
+        return "Safe"
+    if (settings["moderate_low_min"] <= value <= settings["moderate_low_max"] or
+        settings["moderate_high_min"] <= value <= settings["moderate_high_max"]):
+        return "Moderate"
+
+    return "Unsafe"
 
 def severity_score(label):
     """

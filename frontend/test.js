@@ -12,6 +12,15 @@ const api_thres_url = '/api/threshold';
 const tempThresholdUrl = '/api/temperature-threshold';
 const resetTempThresholdUrl = '/api/reset-temperature-threshold';
 
+const co2ThresholdUrl = '/api/co2-threshold';
+const resetCo2ThresholdUrl = '/api/reset-co2-threshold';
+
+const coThresholdUrl = '/api/co-threshold';
+const resetCoThresholdUrl = '/api/reset-co-threshold';
+
+const airThresholdUrl = '/api/air-threshold';
+const resetAirThresholdUrl = '/api/reset-air-threshold';
+
 // These arrays will hold the data coming from the POST endpoint and will be used to update each graph with the data in it
 const labels = [];
 const tempData = [];
@@ -192,12 +201,12 @@ async function saveTemperatureThresholds(){
 
     // Checking if any of the input boxes are empty
     if(
-        document.getElementById("safe_min").value === "" ||
-        document.getElementById("safe_max").value === "" ||
-        document.getElementById("moderate_low_min").value === "" ||
-        document.getElementById("moderate_low_max").value === "" ||
-        document.getElementById("moderate_high_min").value === "" ||
-        document.getElementById("moderate_high_max").value === ""
+        document.getElementById("temp_safe_min").value === "" ||
+        document.getElementById("temp_safe_max").value === "" ||
+        document.getElementById("temp_moderate_low_min").value === "" ||
+        document.getElementById("temp_moderate_low_max").value === "" ||
+        document.getElementById("temp_moderate_high_min").value === "" ||
+        document.getElementById("temp_moderate_high_max").value === ""
     ) {
         alert("Please fill in all threshold fields");
         return;
@@ -205,12 +214,12 @@ async function saveTemperatureThresholds(){
 
     // Grabs the values from the frontend boxes, converts them into numbers, and then stores them in their corresponding object/variable
     const payload = {
-        safe_min: Number(document.getElementById("safe_min").value),
-        safe_max: Number(document.getElementById("safe_max").value),
-        moderate_low_min: Number(document.getElementById("moderate_low_min").value),
-        moderate_low_max: Number(document.getElementById("moderate_low_max").value),
-        moderate_high_min: Number(document.getElementById("moderate_high_min").value),
-        moderate_high_max: Number(document.getElementById("moderate_high_max").value)
+        safe_min: Number(document.getElementById("temp_safe_min").value),
+        safe_max: Number(document.getElementById("temp_safe_max").value),
+        moderate_low_min: Number(document.getElementById("temp_moderate_low_min").value),
+        moderate_low_max: Number(document.getElementById("temp_moderate_low_max").value),
+        moderate_high_min: Number(document.getElementById("temp_moderate_high_min").value),
+        moderate_high_max: Number(document.getElementById("temp_moderate_high_max").value)
     };
 
     // Sends the new data from the user to the backend using the POST endpoint
@@ -251,6 +260,141 @@ async function resetTemperatureThresholds() {
         console.error("Error resetting temperature thresholds:", error);
         alert("Could not reset thresholds");
     }
+}
+
+async function saveCO2Thresholds() {
+    if(
+        document.getElementById("co2_safe_min").value === "" ||
+        document.getElementById("co2_safe_max").value === "" ||
+        document.getElementById("co2_moderate_low_min").value === "" ||
+        document.getElementById("co2_moderate_low_max").value === "" ||
+        document.getElementById("co2_moderate_high_min").value === "" ||
+        document.getElementById("co2_moderate_high_max").value === ""
+    ) {
+        alert("Please fill in all CO2 threshold fields");
+        return;
+    }
+
+    const payload = {
+        safe_min: Number(document.getElementById("co2_safe_min").value),
+        safe_max: Number(document.getElementById("co2_safe_max").value),
+        moderate_low_min: Number(document.getElementById("co2_moderate_low_min").value),
+        moderate_low_max: Number(document.getElementById("co2_moderate_low_max").value),
+        moderate_high_min: Number(document.getElementById("co2_moderate_high_min").value),
+        moderate_high_max: Number(document.getElementById("co2_moderate_high_max").value)
+    };
+
+    try {
+        const res = await fetch(co2ThresholdUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        if(!res.ok) throw new Error("Failed");
+        alert("CO2 thresholds updated successfully");
+        fetchThresholds();
+    } catch(error) {
+        alert("Could not save CO2 thresholds");
+    }
+}
+
+async function resetCO2Thresholds() {
+    try {
+        const res = await fetch(resetCo2ThresholdUrl, { method: "POST" });
+        if(!res.ok) throw new Error("Failed");
+        alert("CO2 thresholds reset to default");
+        fetchThresholds();
+    } catch(error) { alert("Could not reset CO2 thresholds"); }
+}
+
+async function saveCOThresholds() {
+    if(
+        document.getElementById("co_safe_min").value === "" ||
+        document.getElementById("co_safe_max").value === "" ||
+        document.getElementById("co_moderate_low_min").value === "" ||
+        document.getElementById("co_moderate_low_max").value === "" ||
+        document.getElementById("co_moderate_high_min").value === "" ||
+        document.getElementById("co_moderate_high_max").value === ""
+    ) {
+        alert("Please fill in all CO threshold fields");
+        return;
+    }
+
+    const payload = {
+        safe_min: Number(document.getElementById("co_safe_min").value),
+        safe_max: Number(document.getElementById("co_safe_max").value),
+        moderate_low_min: Number(document.getElementById("co_moderate_low_min").value),
+        moderate_low_max: Number(document.getElementById("co_moderate_low_max").value),
+        moderate_high_min: Number(document.getElementById("co_moderate_high_min").value),
+        moderate_high_max: Number(document.getElementById("co_moderate_high_max").value)
+    };
+
+    try {
+        const res = await fetch(coThresholdUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        if(!res.ok) throw new Error("Failed");
+        alert("CO thresholds updated successfully");
+        fetchThresholds();
+    } catch(error) {
+        alert("Could not save CO thresholds");
+    }
+}
+
+async function resetCOThresholds() {
+    try {
+        const res = await fetch(resetCoThresholdUrl, { method: "POST" });
+        if(!res.ok) throw new Error("Failed");
+        alert("CO thresholds reset to default");
+        fetchThresholds();
+    } catch(error) { alert("Could not reset CO thresholds"); }
+}
+
+async function saveAirThresholds() {
+    if(
+        document.getElementById("air_safe_min").value === "" ||
+        document.getElementById("air_safe_max").value === "" ||
+        document.getElementById("air_moderate_low_min").value === "" ||
+        document.getElementById("air_moderate_low_max").value === "" ||
+        document.getElementById("air_moderate_high_min").value === "" ||
+        document.getElementById("air_moderate_high_max").value === ""
+    ) {
+        alert("Please fill in all Air Quality threshold fields");
+        return;
+    }
+
+    const payload = {
+        safe_min: Number(document.getElementById("air_safe_min").value),
+        safe_max: Number(document.getElementById("air_safe_max").value),
+        moderate_low_min: Number(document.getElementById("air_moderate_low_min").value),
+        moderate_low_max: Number(document.getElementById("air_moderate_low_max").value),
+        moderate_high_min: Number(document.getElementById("air_moderate_high_min").value),
+        moderate_high_max: Number(document.getElementById("air_moderate_high_max").value)
+    };
+
+    try {
+        const res = await fetch(airThresholdUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        if(!res.ok) throw new Error("Failed");
+        alert("Air Quality thresholds updated successfully");
+        fetchThresholds();
+    } catch(error) {
+        alert("Could not save Air Quality thresholds");
+    }
+}
+
+async function resetAirThresholds() {
+    try {
+        const res = await fetch(resetAirThresholdUrl, { method: "POST" });
+        if(!res.ok) throw new Error("Failed");
+        alert("Air Quality thresholds reset to default");
+        fetchThresholds();
+    } catch(error) { alert("Could not reset Air Quality thresholds"); }
 }
 
 // Refresh every 2 seconds

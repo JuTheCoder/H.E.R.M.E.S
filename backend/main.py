@@ -67,8 +67,32 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Format for the custom Temp thresholds
+# Format for the custom thresholds
 class TempThresholds(BaseModel):
+    safe_min: int
+    safe_max: int
+    moderate_low_min: int
+    moderate_low_max: int
+    moderate_high_min: int
+    moderate_high_max: int
+
+class CO2Thresholds(BaseModel):
+    safe_min: int
+    safe_max: int
+    moderate_low_min: int
+    moderate_low_max: int
+    moderate_high_min: int
+    moderate_high_max: int
+
+class COThresholds(BaseModel):
+    safe_min: int
+    safe_max: int
+    moderate_low_min: int
+    moderate_low_max: int
+    moderate_high_min: int
+    moderate_high_max: int
+
+class AirThresholds(BaseModel):
     safe_min: int
     safe_max: int
     moderate_low_min: int
@@ -281,6 +305,39 @@ def reset_temperature_threshold():
         del custom_thresholds["temperature"]
 
     return {"message": "Temperature thresholds reset to default"}
+
+@app.post("/api/co2-threshold")
+def set_co2_threshold(data: CO2Thresholds):
+    custom_thresholds["co2"] = data.model_dump()
+    return {"message": "CO2 thresholds updated"}
+
+@app.post("/api/reset-co2-threshold")
+def reset_co2_threshold():
+    if "co2" in custom_thresholds:
+        del custom_thresholds["co2"]
+    return {"message": "CO2 thresholds reset to default"}
+
+@app.post("/api/co-threshold")
+def set_co_threshold(data: COThresholds):
+    custom_thresholds["co"] = data.model_dump()
+    return {"message": "CO thresholds updated"}
+
+@app.post("/api/reset-co-threshold")
+def reset_co_threshold():
+    if "co" in custom_thresholds:
+        del custom_thresholds["co"]
+    return {"message": "CO thresholds reset to default"}
+
+@app.post("/api/air-threshold")
+def set_air_threshold(data: AirThresholds):
+    custom_thresholds["air"] = data.model_dump()
+    return {"message": "AQ thresholds updated"}
+
+@app.post("/api/reset-air-threshold")
+def reset_air_threshold():
+    if "air" in custom_thresholds:
+        del custom_thresholds["air"]
+    return {"message": "AQ thresholds reset to default"}
 
 #Serves the frontend files (HTML, CSS, JS) straight from FastAPI
 app.mount("/", StaticFiles(directory="../frontend", html=True), name ="frontend")
