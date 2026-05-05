@@ -118,3 +118,48 @@ canvas {
 p1 {
     padding-bottom: 20px;
 }
+
+.threshold-settings {
+    background-color: #f3f4f6;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 30px;
+    text-align: center;
+}
+
+.threshold-settings h2 {
+    margin-bottom: 15px;
+}
+
+.threshold-settings label {
+    display: inline-block;
+    width: 140px;
+    text-align: right;
+    margin-right: 8px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.threshold-settings input {
+    width: 80px;
+    padding: 6px 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.threshold-settings button {
+    margin: 10px 5px 0 5px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    background-color: #10b981;
+}
+
+.threshold-settings button:last-child {
+    background-color: #6b7280;
+}

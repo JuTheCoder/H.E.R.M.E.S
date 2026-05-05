@@ -8,6 +8,26 @@
         </title>
         <link rel="stylesheet" type="text/css" href="styles.css">
         <script src = "https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            // If no token go back to login
+            if (!localStorage.getItem("token")) {
+                window.location.href = "/";
+            }
+
+            // Logout after 10 minutes of no activity
+            let inactivityTimer;
+            function resetTimer() {
+                clearTimeout(inactivityTimer);
+                inactivityTimer = setTimeout(function() {
+                    localStorage.removeItem("token");
+                    window.location.href = "/";
+                }, 600000);
+            }
+            document.addEventListener("mousemove", resetTimer);
+            document.addEventListener("keypress", resetTimer);
+            document.addEventListener("click", resetTimer);
+            resetTimer();
+        </script>
         <script src = "test.js" defer></script>
     </head>
 <body>
@@ -16,6 +36,7 @@
         H.E.R.M.E.S. Air Data Display
     </h1>
     <p class="subtitle">Live enviornmental sensor readings</p>
+    <button onclick="localStorage.removeItem('token'); window.location.href='/'" style="position:absolute; top:20px; right:30px; padding:8px 16px; background:#ef4444; color:white; border:none; border-radius:6px; cursor:pointer;">Logout</button>
 
     <div class="status-box">
         <h2>Overall Quality</h2>
@@ -57,6 +78,20 @@
         </tr>
         </tbody> 
     </table>
+    <div class="status-box" id="robot-section">
+       <h2>Robot Patrol</h2>
+       <p id="robot-location">Location: idle</p>
+       <p id="robot-blocked" style="color:red; font-weight:bold; display:none;">PATH BLOCKED</p>
+       <button id="start-btn" onclick="startPatrol()" style="padding:10px 20px; background:#2ecc71; color:white; border:none; border-radius:5px; cursor:pointer; font-size:16px;">
+           Start Patrol
+       </button>
+       <button id="stop-btn" onclick="stopPatrol()" style="padding:10px 20px; background:#ef4444; color:white; border:none; border-radius:5px; cursor:pointer; font-size:16px; display:none;">
+           Stop Patrol
+       </button>
+       <button id="clear-btn" onclick="clearPath()" style="padding:10px 20px; background:#f59e0b; color:white; border:none; border-radius:5px; cursor:pointer; font-size:16px; display:none;">
+           Clear Path
+       </button>
+    </div>
         <div class="graphs-container">
             <div class="chart-box">
                 <h2>Temperature</h2>
@@ -78,6 +113,54 @@
                 <canvas id="airChart"></canvas>
             </div>
         </div>
+        <div class="threshold-settings">
+            <h2>Temperature Threshold Settings</h2>
+            <label>Safe Min</label><input type="number" id="temp_safe_min" placeholder="68">
+            <label>Safe Max</label><input type="number" id="temp_safe_max" placeholder="77">
+            <label>Mod Low Min</label><input type="number" id="temp_moderate_low_min" placeholder="60">
+            <label>Mod Low Max</label><input type="number" id="temp_moderate_low_max" placeholder="67">
+            <label>Mod High Min</label><input type="number" id="temp_moderate_high_min" placeholder="78">
+            <label>Mod High Max</label><input type="number" id="temp_moderate_high_max" placeholder="85">
+            <button onclick="saveTemperatureThresholds()">Save Thresholds</button>
+            <button onclick="resetTemperatureThresholds()">Reset to Default</button>
+        </div>
+
+        <div class="threshold-settings">
+            <h2>CO2 Threshold Settings</h2>
+            <label>Safe Min</label><input type="number" id="co2_safe_min" placeholder="400">
+            <label>Safe Max</label><input type="number" id="co2_safe_max" placeholder="800">
+            <label>Mod Low Min</label><input type="number" id="co2_moderate_low_min" placeholder="300">
+            <label>Mod Low Max</label><input type="number" id="co2_moderate_low_max" placeholder="399">
+            <label>Mod High Min</label><input type="number" id="co2_moderate_high_min" placeholder="801">
+            <label>Mod High Max</label><input type="number" id="co2_moderate_high_max" placeholder="1000">
+            <button onclick="saveCO2Thresholds()">Save Thresholds</button>
+            <button onclick="resetCO2Thresholds()">Reset to Default</button>
+        </div>
+
+        <div class="threshold-settings">
+            <h2>CO Threshold Settings</h2>
+            <label>Safe Min</label><input type="number" id="co_safe_min" placeholder="0">
+            <label>Safe Max</label><input type="number" id="co_safe_max" placeholder="14">
+            <label>Mod Low Min</label><input type="number" id="co_moderate_low_min" placeholder="0">
+            <label>Mod Low Max</label><input type="number" id="co_moderate_low_max" placeholder="0">
+            <label>Mod High Min</label><input type="number" id="co_moderate_high_min" placeholder="15">
+            <label>Mod High Max</label><input type="number" id="co_moderate_high_max" placeholder="34">
+            <button onclick="saveCOThresholds()">Save Thresholds</button>
+            <button onclick="resetCOThresholds()">Reset to Default</button>
+        </div>
+
+        <div class="threshold-settings">
+            <h2>Air Quality Threshold Settings</h2>
+            <label>Safe Min</label><input type="number" id="air_safe_min" placeholder="0">
+            <label>Safe Max</label><input type="number" id="air_safe_max" placeholder="150">
+            <label>Mod Low Min</label><input type="number" id="air_moderate_low_min" placeholder="0">
+            <label>Mod Low Max</label><input type="number" id="air_moderate_low_max" placeholder="0">
+            <label>Mod High Min</label><input type="number" id="air_moderate_high_min" placeholder="151">
+            <label>Mod High Max</label><input type="number" id="air_moderate_high_max" placeholder="400">
+            <button onclick="saveAirThresholds()">Save Thresholds</button>
+            <button onclick="resetAirThresholds()">Reset to Default</button>
+        </div>
+
     </div>
 </body>  
 </html>

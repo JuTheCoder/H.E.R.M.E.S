@@ -6,12 +6,19 @@ alerts if any of the four thresholds are exceeded.
 import time
 import os
 import requests
-import serial
+#import serial
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from data import threshold, overall_threshold
+from data import threshold, overall_threshold, custom_thresholds
+#Lets FastAPI serve our frontend files directly instead of needing Live Server
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+#Authentication imports for login and protected endpoints
+from fastapi.security import OAuth2PasswordRequestForm
+from auth import create_access_token, verify_password, get_current_user, USERS
 
 # Stores latest reading
 latest_data = {
@@ -19,6 +26,13 @@ latest_data = {
     "co2": 0,
     "co": 0,
     "air": 0
+}
+
+#Tracks the robots current status and location
+robot_status = {
+    "blocked": False,
+    "location": "idle",
+    "running": False
 }
 
 # Variables used to prevent alert spamming
@@ -34,8 +48,9 @@ TWILIO_TOKEN = os.getenv("TWILIO_TOKEN")
 TWILIO_PHONE = os.getenv("TWILIO_PHONE")
 MY_PHONE = os.getenv("MY_PHONE")
 
-ser = serial.Serial('/dev/cu.usbmodem101', 9600, timeout=1)
-time.sleep(2)
+#Serial port for the Pi (change to /dev/cu.usbmodem101 for Mac testing)
+#ser = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+#time.sleep(2)
 
 app = FastAPI()
 
@@ -51,6 +66,39 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Format for the custom thresholds
+class TempThresholds(BaseModel):
+    safe_min: int
+    safe_max: int
+    moderate_low_min: int
+    moderate_low_max: int
+    moderate_high_min: int
+    moderate_high_max: int
+
+class CO2Thresholds(BaseModel):
+    safe_min: int
+    safe_max: int
+    moderate_low_min: int
+    moderate_low_max: int
+    moderate_high_min: int
+    moderate_high_max: int
+
+class COThresholds(BaseModel):
+    safe_min: int
+    safe_max: int
+    moderate_low_min: int
+    moderate_low_max: int
+    moderate_high_min: int
+    moderate_high_max: int
+
+class AirThresholds(BaseModel):
+    safe_min: int
+    safe_max: int
+    moderate_low_min: int
+    moderate_low_max: int
+    moderate_high_min: int
+    moderate_high_max: int
 
 # Format for the threshold endpoint
 class Threshold(BaseModel):
@@ -73,16 +121,16 @@ class SensorReading(BaseModel):
     air: int
     temperature: float
 
-def send_twilio_sms(message_body: str):
+def send_twilio_alert(message_body: str):
     """
-    Sends an SMS using the Twilio's API, also includes debugging 
-    messages in the event of failure based on error codes.
+    Sends an WhatsApp message using the Twilio's API, Uses the same
+    endpoint as SMS but with the whatsapp: prefix on the numbers
     """
     url = f"https://api.twilio.com/2010-04-01/Accounts/{TWILIO_SID}/Messages.json"
 
     data = {
-        "From": TWILIO_PHONE,
-        "To": MY_PHONE,
+        "From": f"whatsapp:{TWILIO_PHONE}",
+        "To": f"whatsapp:{MY_PHONE}",
         "Body": message_body
     }
 
@@ -90,9 +138,9 @@ def send_twilio_sms(message_body: str):
         response = requests.post(url, data=data, auth=(TWILIO_SID, TWILIO_TOKEN), timeout=10)
 
         if 200 <= response.status_code < 300:
-            print("Twilio Alert Sent Successfully!")
+            print("WhatsApp Alert Sent Successfully!")
             return True
-        print(f"Twilio Alert Failed! Status: {response.status_code}")
+        print(f"WhatsApp Failed! Status: {response.status_code}")
 
         print(f"DEBUG INFO: {response.text}")
         return False
@@ -100,6 +148,21 @@ def send_twilio_sms(message_body: str):
     except requests.exceptions.RequestException as e:
         print(f"Network Error: {e}")
         return False
+
+@app.post("/api/login")
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    """
+    Authenticates the user and returns a JWT token
+    if the credentials are valid
+    """
+    user = USERS.get(form_data.username)
+    if not user or not verify_password(form_data.password, user["hashed_password"]):
+        raise HTTPException(status_code=401, detail= "Incorrect username or password")
+
+    token = create_access_token(data={"sub": form_data.username})
+    return {"access_token": token, "token_type": "bearer"}
+
+
 
 @app.post("/api/sensor-data")
 async def receive_sensor_data(reading: SensorReading):
@@ -120,13 +183,13 @@ async def receive_sensor_data(reading: SensorReading):
     is_dangerous = reading.co2 > 1000
 
     # Sends communication back to Arduino based on alert status
-    if ser.is_open:
-        if is_dangerous:
+   # if ser.is_open:
+   #     if is_dangerous:
             # Prompts system to beep and flash a red light
-            ser.write(b'1')
-        else:
+   #         ser.write(b'1')
+    #    else:
             # Nothing happens/beeping and flashing turn off
-            ser.write(b'0')
+      #      ser.write(b'0')
 
     current_time = time.time()
 
@@ -134,12 +197,12 @@ async def receive_sensor_data(reading: SensorReading):
         # Check Cooldowns to prevent alert message spam
         if (current_time - LAST_ALERT_TIME) > COOLDOWN_SECONDS:
             alert_msg = f"""
-                H.E.R.M.E.S. ALERT: Dangerous Levels Detected!\n 
+                H.E.R.M.E.S. ALERT: Dangerous Levels Detected!\n
                 Current Readings: CO2: {reading.co2}ppm,\n CO: {reading.co}ppm,\n
                 AQ: {reading.air},\n Temp: {reading.temperature}
                 """
 
-            success = send_twilio_sms(alert_msg)
+            success = send_twilio_alert(alert_msg)
 
             if success:
                 LAST_ALERT_TIME = current_time
@@ -187,3 +250,94 @@ def thold():
         "air_thresh": air_thresh,
         "overall_thresh": overall_thresh
     }
+
+# Robot patrol endpoints
+@app.post("/api/robot/obstacle")
+async def robot_obstacle(data: dict):
+    """Updated whether the robots path is blocked and sends alert"""
+    robot_status["blocked"] = data.get("blocked", False)
+    robot_status["location"] = data.get("location", "unknown")
+
+    if robot_status["blocked"]:
+        location = robot_status["location"]
+        alert_msg = f"H.E.R.M.E.S. PATROL ALERT: Robot stopped!\nObstacle detected at: {location}\nOpen the dashboard to clear the path."
+        send_twilio_alert(alert_msg)
+
+    return {"status": "updated"}
+
+@app.get("/api/robot/status")
+def robot_get_status():
+    """Returns the robots current status for the patrol script to check"""
+    return robot_status
+
+@app.post("/api/robot/location")
+async def robot_location(data: dict):
+    """Updates the robots current position on the route"""
+    robot_status["location"] = data.get("location", "unknown")
+    return {"status": "updated"}
+
+@app.post("/api/robot/start")
+async def robot_start():
+    """Starts the robot patrol from the dashboard"""
+    robot_status["running"] = True
+    robot_status["location"] = "starting"
+    return {"status": "started"}
+
+@app.post("/api/robot/stop")
+async def robot_stop():
+    """Stops the robot patrol from the dashboard"""
+    robot_status["running"] = False
+    return {"status": "stopped"}
+
+# POST endpoint that will allow the frontend to send the custom thresholds to our backend
+@app.post("/api/temperature-threshold")
+def set_temperature_threshold(data: TempThresholds):
+    custom_thresholds["temperature"] = data.model_dump()
+    return {
+        "message": "Temperature thresholds updated",
+        "new_values": custom_thresholds["temperature"]
+    }
+
+# POST endpoint that will reset the Temperature thresholds to its default settings/values
+@app.post("/api/reset-temperature-threshold")
+def reset_temperature_threshold():
+    if "temperature" in custom_thresholds:
+        del custom_thresholds["temperature"]
+
+    return {"message": "Temperature thresholds reset to default"}
+
+@app.post("/api/co2-threshold")
+def set_co2_threshold(data: CO2Thresholds):
+    custom_thresholds["co2"] = data.model_dump()
+    return {"message": "CO2 thresholds updated"}
+
+@app.post("/api/reset-co2-threshold")
+def reset_co2_threshold():
+    if "co2" in custom_thresholds:
+        del custom_thresholds["co2"]
+    return {"message": "CO2 thresholds reset to default"}
+
+@app.post("/api/co-threshold")
+def set_co_threshold(data: COThresholds):
+    custom_thresholds["co"] = data.model_dump()
+    return {"message": "CO thresholds updated"}
+
+@app.post("/api/reset-co-threshold")
+def reset_co_threshold():
+    if "co" in custom_thresholds:
+        del custom_thresholds["co"]
+    return {"message": "CO thresholds reset to default"}
+
+@app.post("/api/air-threshold")
+def set_air_threshold(data: AirThresholds):
+    custom_thresholds["air"] = data.model_dump()
+    return {"message": "AQ thresholds updated"}
+
+@app.post("/api/reset-air-threshold")
+def reset_air_threshold():
+    if "air" in custom_thresholds:
+        del custom_thresholds["air"]
+    return {"message": "AQ thresholds reset to default"}
+
+#Serves the frontend files (HTML, CSS, JS) straight from FastAPI
+app.mount("/", StaticFiles(directory="../frontend", html=True), name ="frontend")
